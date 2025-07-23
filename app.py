@@ -95,52 +95,34 @@ def index():
     """Sirve la página principal de la aplicación."""
     return render_template('index.html')
 
-@app.route('/api/event_dates', methods=['GET'])
-def get_event_dates():
+@app.route('/api/event_names', methods=['GET'])
+def get_event_names():
     """
-    Obtiene todas las fechas únicas de inicio y fin de eventos de la base de datos.
+    Obtiene todos los nombres únicos de eventos de la base de datos.
     """
     try:
-        initial_dates = events_collection.distinct("initialDate")
-        final_dates = events_collection.distinct("finalDate")
-
-        all_dates = set()
-        for dt in initial_dates:
-            if isinstance(dt, datetime):
-                all_dates.add(dt.date())
-        for dt in final_dates:
-            if isinstance(dt, datetime):
-                all_dates.add(dt.date())
-
-        sorted_dates = sorted([d.isoformat() for d in list(all_dates)])
-        logging.info(f"Fechas de eventos únicas encontradas: {len(sorted_dates)}")
-        return jsonify(sorted_dates)
+        event_names = events_collection.distinct("name")
+        sorted_names = sorted(event_names)
+        logging.info(f"Nombres de eventos únicos encontrados: {len(sorted_names)}")
+        return jsonify(sorted_names)
     except Exception as e:
-        logging.error(f"Error al obtener fechas de eventos: {e}")
-        return jsonify({"error": "Fallo al obtener fechas de eventos", "details": str(e)}), 500
+        logging.error(f"Error al obtener nombres de eventos: {e}")
+        return jsonify({"error": "Fallo al obtener nombres de eventos", "details": str(e)}), 500
 
 
 @app.route('/api/events', methods=['GET'])
 def get_events():
     """
-    Obtiene eventos de la base de datos MongoDB, aplicando filtro por una fecha seleccionada.
+    Obtiene eventos de la base de datos MongoDB, aplicando filtro por nombre de evento.
     Los parámetros de la URL son:
-    - selectedDate (ISO format, YYYY-MM-DD): Fecha para filtrar eventos que estén activos en ese día.
+    - selectedEventName (string): Nombre del evento para filtrar.
     """
-    selected_date_str = request.args.get('selectedDate')
+    selected_event_name = request.args.get('selectedEventName')
 
     query = {}
-    if selected_date_str:
-        try:
-            selected_date_start = datetime.fromisoformat(selected_date_str)
-            selected_date_end = datetime.fromisoformat(selected_date_str).replace(hour=23, minute=59, second=59, microsecond=999999)
-
-            query['initialDate'] = {'$lte': selected_date_end}
-            query['finalDate'] = {'$gte': selected_date_start}
-
-        except ValueError:
-            logging.warning(f"Formato de fecha seleccionada inválido: {selected_date_str}")
-            return jsonify({"error": "Formato de fecha seleccionada inválido. Use YYYY-MM-DD"}), 400
+    if selected_event_name:
+        # Búsqueda exacta por nombre
+        query['name'] = selected_event_name
 
     try:
         events_cursor = events_collection.find(query)
@@ -215,7 +197,7 @@ def gemini_analysis():
     Basado en la información recopilada del sitio web del evento y la descripción de la startup (Voicit es una herramienta de IA para consultoras de RRHH), determina si el evento actual es de interés para la startup. Considera si el evento ofrece oportunidades de networking, visibilidad para soluciones de IA/RRHH/SaaS, posibles clientes, inversores, o conocimiento relevante para su sector.
 
     **Paso 3: Generación de Respuesta.**
-    Crea una respuesta concisa de aproximadamente 300 palabras (unos 1500-2000 caracteres).
+    Crea una respuesta concisa de aproximadamente 150 palabras (unos 750-1000 caracteres).
 
     **Si el evento es de interés para la startup:**
     Explica claramente por qué es relevante, destacando los beneficios específicos que Voicit podría obtener al asistir o participar.
@@ -227,8 +209,8 @@ def gemini_analysis():
     {events_list_str if events_list_str else "No hay otros eventos disponibles para recomendar."}
 
     **Formato de la Respuesta:**
-    - Si es de interés: "¡Este evento es muy prometedor para Voicit! [Explicación detallada de por qué, mencionando la relación con IA, RRHH, SaaS, networking, etc. Máx. ~300 palabras]"
-    - Si NO es de interés: "Este evento parece menos alineado con los objetivos de Voicit. [Explicación concisa y recomendación de un evento alternativo de la lista, justificando por qué es mejor. Máx. ~300 palabras]"
+    - Si es de interés: "¡Este evento es muy prometedor para Voicit! [Explicación detallada de por qué, mencionando la relación con IA, RRHH, SaaS, networking, etc. Máx. ~150 palabras]"
+    - Si NO es de interés: "Este evento parece menos alineado con los objetivos de Voicit. [Explicación concisa y recomendación de un evento alternativo de la lista, justificando por qué es mejor. Máx. ~150 palabras]"
     """
 
     try:
@@ -238,13 +220,10 @@ def gemini_analysis():
         logging.info(f"Respuesta inicial de Gemini recibida: {response}")
 
         # Manejar llamadas a herramientas (si el modelo decide usar search_internet)
-        # Bucle para procesar múltiples llamadas a herramientas si Gemini las hace
         while True:
-            # Comprobar si hay candidatos y si el primer candidato tiene contenido y partes
             if not (response.candidates and response.candidates[0].content and response.candidates[0].content.parts):
-                break # Salir si no hay más contenido o partes
+                break
 
-            # Buscar una función de llamada en las partes del contenido
             function_call_found = False
             for part in response.candidates[0].content.parts:
                 if part.function_call:
@@ -276,19 +255,18 @@ def gemini_analysis():
                                 )
                             )
                         )
-                    break # Procesar solo la primera llamada a función y luego reevaluar la respuesta de Gemini
+                    break
             
             if not function_call_found:
-                break # Si no se encontró ninguna llamada a función en las partes, salir del bucle
+                break
 
             logging.info(f"Respuesta de Gemini después de la herramienta: {response}")
 
-
-        # Una vez que no hay más llamadas a herramientas, obtener la respuesta de texto final
         if response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
             gemini_output = response.candidates[0].content.parts[0].text
-            if len(gemini_output) > 2000:
-                gemini_output = gemini_output[:1997] + "..."
+            # Truncar la salida a aproximadamente 150 palabras (aproximadamente 750-1000 caracteres para español)
+            if len(gemini_output) > 1000: # Limite de caracteres para ~150 palabras
+                gemini_output = gemini_output[:997] + "..."
             logging.info(f"Análisis final de Gemini generado para '{event_name}': {gemini_output}")
             return jsonify({"analysis": gemini_output})
         else:
@@ -362,6 +340,8 @@ if __name__ == '__main__':
         logging.error(f"Error al verificar la colección de eventos: {e}")
 
     app.run(debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+
+
 
 
 

@@ -1,54 +1,52 @@
-<!DOCTYPE html>
+
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Interactivo de Eventos</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS CDN (se mantiene para clases de utilidad y responsive) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Leaflet CSS (SRI y crossorigin eliminados para depuración) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        /* Estilos para la fuente Inter */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+        /* Estilos para la fuente Helvetica (se define en style.css, pero se mantiene aquí por si acaso) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'); /* Mantener Inter si es fallback, o eliminar */
+        /* La fuente Helvetica se define en style.css */
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-    <header class="bg-white shadow-md p-4">
-        <h1 class="text-3xl font-bold text-center text-gray-800">Mapa de Eventos</h1>
+<body>
+    <header>
+        <h1>Mapa Interactivo de Eventos de Tecnología y Startups</h1>
     </header>
 
-    <main class="flex-grow container mx-auto p-6 flex flex-col lg:flex-row gap-6">
+    <main class="container flex-grow flex flex-col lg:flex-row gap-6">
         <!-- Panel de Filtros y Análisis -->
-        <div class="bg-white rounded-lg shadow-lg p-6 w-full lg:w-1/3 flex flex-col h-auto lg:h-[calc(100vh-160px)]">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Filtrar Eventos</h2>
+        <div class="card w-full lg:w-1/3 flex flex-col h-auto lg:h-[calc(100vh-160px)]">
+            <h2>Filtrar Eventos</h2>
 
             <div class="space-y-4 mb-6">
                 <div>
-                    <label for="eventDateFilter" class="block text-sm font-medium text-gray-700 mb-1">Seleccionar Fecha:</label>
-                    <select id="eventDateFilter" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                    <label for="eventNameFilter">Seleccionar Evento:</label>
+                    <select id="eventNameFilter" class="select-field">
                         <option value="">Todos los eventos</option>
                         <!-- Las opciones se cargarán dinámicamente con JavaScript -->
                     </select>
                 </div>
-                <button id="filterBtn" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out shadow-md">
+                <button id="filterBtn" class="btn-primary">
                     Aplicar Filtro
                 </button>
-                <button id="resetBtn" class="w-full bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition duration-150 ease-in-out shadow-md">
+                <button id="resetBtn" class="btn-secondary">
                     Restablecer Filtro
                 </button>
             </div>
 
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4 mt-auto">Análisis de Evento</h2>
-            <div id="geminiAnalysis" class="bg-indigo-50 p-4 rounded-md border border-indigo-200 text-gray-700 text-sm overflow-y-auto flex-grow max-h-[300px] lg:max-h-full">
+            <h2 class="mt-auto">Análisis de Evento</h2>
+            <div id="geminiAnalysis" class="card flex-grow max-h-[300px] lg:max-h-full">
                 <p>Haz clic en un marcador de evento en el mapa para obtener un análisis sobre su relevancia para tus intereses en startups y tecnología.</p>
-                <div id="loadingIndicator" class="hidden text-center text-indigo-600 mt-4">
-                    <svg class="animate-spin h-5 w-5 text-indigo-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div id="loadingIndicator" class="hidden text-center mt-4">
+                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -58,10 +56,10 @@
         </div>
 
         <!-- Contenedor del Mapa -->
-        <div id="map" class="bg-gray-200 rounded-lg shadow-lg w-full lg:w-2/3 h-[500px] lg:h-[calc(100vh-160px)]"></div>
+        <div id="map" class="w-full lg:w-2/3 h-[500px] lg:h-[calc(100vh-160px)]"></div>
     </main>
 
-    <footer class="bg-white shadow-md p-4 text-center text-gray-600 text-sm mt-auto">
+    <footer>
         &copy; 2025 Mapa de Eventos.
     </footer>
 
@@ -71,5 +69,6 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
+
 
 

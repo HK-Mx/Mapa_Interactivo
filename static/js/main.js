@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let markers = []; // Array para almacenar los marcadores actuales en el mapa
 
-    const eventDateFilter = document.getElementById('eventDateFilter');
+    const eventNameFilter = document.getElementById('eventNameFilter'); // Cambiado de eventDateFilter
     const filterBtn = document.getElementById('filterBtn');
     const resetBtn = document.getElementById('resetBtn');
     const geminiAnalysisDiv = document.getElementById('geminiAnalysis');
@@ -65,40 +65,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Rellena el desplegable de fechas con las fechas de eventos únicas desde el backend.
+     * Rellena el desplegable de nombres de eventos con los nombres únicos desde el backend.
      */
-    async function populateDateFilterDropdown() {
+    async function populateEventNameFilterDropdown() { // Renombrado
         try {
-            const response = await fetch('/api/event_dates');
+            const response = await fetch('/api/event_names'); // Nueva API
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Fallo al cargar las fechas de eventos');
+                throw new Error(errorData.error || 'Fallo al cargar los nombres de eventos');
             }
-            const dates = await response.json();
+            const names = await response.json();
 
-            eventDateFilter.innerHTML = '<option value="">Todos los eventos</option>';
+            eventNameFilter.innerHTML = '<option value="">Todos los eventos</option>'; // Cambiado
 
-            dates.forEach(dateStr => {
+            names.forEach(nameStr => {
                 const option = document.createElement('option');
-                option.value = dateStr;
-                option.textContent = formatDateDisplay(dateStr);
-                eventDateFilter.appendChild(option);
+                option.value = nameStr;
+                option.textContent = nameStr; // Mostrar el nombre del evento
+                eventNameFilter.appendChild(option);
             });
         } catch (error) {
-            console.error('Error al cargar las fechas para el desplegable:', error);
-            displayGeminiAnalysis(`Error al cargar las fechas de eventos: ${error.message}.`);
+            console.error('Error al cargar los nombres para el desplegable:', error);
+            displayGeminiAnalysis(`Error al cargar los nombres de eventos: ${error.message}.`);
         }
     }
 
     /**
      * Obtiene y muestra los eventos en el mapa.
-     * @param {string} selectedDate Fecha seleccionada del desplegable (formato YYYY-MM-DD).
+     * @param {string} selectedEventName Nombre del evento seleccionado del desplegable.
      */
-    async function fetchAndDisplayEvents(selectedDate = '') {
+    async function fetchAndDisplayEvents(selectedEventName = '') { // Cambiado
         clearMarkers();
         const params = new URLSearchParams();
-        if (selectedDate) {
-            params.append('selectedDate', selectedDate);
+        if (selectedEventName) {
+            params.append('selectedEventName', selectedEventName); // Cambiado
         }
 
         try {
@@ -144,8 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 },
                                 body: JSON.stringify({
                                     eventName: event.name,
-                                    eventWebsite: event.website, // Pasar la URL del evento
-                                    startupDescription: userStartupDescription // Pasar la descripción de la startup del usuario
+                                    eventWebsite: event.website,
+                                    startupDescription: userStartupDescription
                                 }),
                             });
 
@@ -181,19 +181,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
     filterBtn.addEventListener('click', () => {
-        const selectedDate = eventDateFilter.value;
-        fetchAndDisplayEvents(selectedDate);
+        const selectedEventName = eventNameFilter.value; // Cambiado
+        fetchAndDisplayEvents(selectedEventName); // Cambiado
     });
 
     resetBtn.addEventListener('click', () => {
-        eventDateFilter.value = ''; // Seleccionar la opción "Todos los eventos"
+        eventNameFilter.value = ''; // Cambiado
         displayGeminiAnalysis("Haz clic en un marcador de evento en el mapa para obtener un análisis de Gemini sobre su relevancia para tus intereses en startups y tecnología.");
         fetchAndDisplayEvents(); // Carga todos los eventos sin filtros
     });
 
-    // Cargar las fechas en el desplegable y luego cargar todos los eventos al inicio
-    populateDateFilterDropdown().then(() => {
+    // Cargar los nombres de eventos en el desplegable y luego cargar todos los eventos al inicio
+    populateEventNameFilterDropdown().then(() => { // Renombrado
         fetchAndDisplayEvents();
     });
 });
+
 
