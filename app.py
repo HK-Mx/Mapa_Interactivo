@@ -57,101 +57,8 @@ def search_internet(query: str) -> str:
         return "El sitio web MWCBarcelona.com es la página oficial del Mobile World Congress, la mayor feria mundial de la industria móvil. Se centra en la conectividad, 5G, IoT, IA móvil, realidad virtual/aumentada y hardware. Es un evento clave para empresas de telecomunicaciones y fabricantes de dispositivos."
     elif "techcrunch.com/events/disrupt" in query:
         return "El sitio web de TechCrunch Disrupt describe el evento como una plataforma para startups emergentes. Incluye el famoso 'Startup Battlefield' donde las startups compiten por financiación, charlas de líderes de la industria, y oportunidades de networking. Se centra en la innovación disruptiva en diversos sectores tecnológicos."
-    elif "voicit.es" in query:
-        return "El sitio web Voicit.es describe a Voicit como una herramienta basada en IA para consultoras de RRHH, especializada en la optimización de procesos de selección y gestión de talento mediante inteligencia artificial. Ofrece soluciones SaaS para el sector de Recursos Humanos."
-    elif "ia" in query.lower() or "inteligencia artificial" in query.lower():
-        return "La Inteligencia Artificial (IA) es un campo de la informática que se enfoca en la creación de máquinas inteligentes que funcionan y reaccionan como humanos. Incluye aprendizaje automático (Machine Learning), procesamiento de lenguaje natural (NLP), visión por computadora y robótica. La IA está transformando industrias como RRHH y finanzas."
-    elif "rrhh" in query.lower() or "recursos humanos" in query.lower():
-        return "El sector de Recursos Humanos (RRHH) está experimentando una transformación digital. Las herramientas de IA en RRHH se utilizan para la automatización de procesos de contratación, análisis de talento, personalización de la experiencia del empleado y mejora de la eficiencia operativa. SaaS es un modelo común para estas soluciones."
-    elif "saas" in query.lower() or "software como servicio" in query.lower():
-        return "Software as a Service (SaaS) es un modelo de entrega de software donde el software es licenciado por suscripción y se aloja centralmente. Es una forma común de ofrecer aplicaciones empresariales y de consumo, proporcionando escalabilidad y accesibilidad. Muchas startups de IA operan bajo este modelo."
-    else:
-        return f"Resultados de búsqueda simulados para '{query}': Información general relevante para tecnología y startups."
-
-# Define la herramienta para el modelo Gemini
-search_tool = genai.protos.Tool(
-    function_declarations=[
-        genai.protos.FunctionDeclaration(
-            name='search_internet',
-            description='Performs a simulated internet search to get information about a website or a specific tech/startup topic.',
-            parameters=genai.protos.Schema(
-                type=genai.protos.Type.OBJECT,
-                properties={
-                    'query': genai.protos.Schema(type=genai.protos.Type.STRING),
-                },
-                required=['query']
-            )
-        )
-    ]
-)
-
-# Inicializa el modelo Gemini con la herramienta definida
-model = genai.GenerativeModel(
-    model_name='gemini-1.5-flash',
-    tools=[search_tool]
-)
-
-# app.py
-import os
-from flask import Flask, render_template, request, jsonify
-from pymongo import MongoClient
-from datetime import datetime
-import google.generativeai as genai
-from dotenv import load_dotenv
-import logging
-
-# Configurar logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Cargar variables de entorno desde el archivo .env
-load_dotenv()
-
-app = Flask(__name__)
-
-# --- Configuración de la Base de Datos MongoDB ---
-MONGO_URI = os.getenv("DATABASE_URL")
-if not MONGO_URI:
-    logging.error("DATABASE_URL environment variable not set.")
-    raise ValueError("DATABASE_URL environment variable not set. Please set it in your .env file or environment.")
-
-try:
-    client = MongoClient(MONGO_URI)
-    db = client.Cluster0 # Asume que el nombre de la base de datos es 'Cluster0' de la URL proporcionada
-    events_collection = db.events # Asume que la colección se llama 'events'
-    startups_collection = db.startup # Asume que la colección de startups se llama 'startup'
-    logging.info("Conexión a MongoDB establecida con éxito.")
-except Exception as e:
-    logging.error(f"Error al conectar con MongoDB: {e}")
-    raise
-
-# --- Configuración de la API de Gemini ---
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    logging.error("GEMINI_API_KEY environment variable not set.")
-    raise ValueError("GEMINI_API_KEY environment variable not set. Please set it in your .env file or environment.")
-
-genai.configure(api_key=GEMINI_API_KEY)
-
-# --- Herramienta de Búsqueda para Gemini (Simulada) ---
-def search_internet(query: str) -> str:
-    """
-    Realiza una búsqueda simulada en internet para la consulta dada.
-    Simula el contenido de una página web o información relevante.
-    """
-    logging.info(f"Simulando búsqueda en internet para: {query}")
-    # Simulación de contenido web basado en palabras clave en la query
-    if "latitude59.ee" in query:
-        return "El sitio web Latitude59.ee describe el evento Latitude 59 como la principal conferencia de startups y tecnología en los países bálticos. Se centra en la innovación, inversión, networking, y presenta pitches de startups de IA, SaaS, fintech y blockchain. Es un punto de encuentro para emprendedores, inversores y líderes tecnológicos."
-    elif "slush.org" in query:
-        return "El sitio web Slush.org presenta Slush como una de las conferencias de startups y tecnología más grandes del mundo, originaria de Helsinki. Se enfoca en la financiación de startups, el crecimiento empresarial, la conexión entre fundadores e inversores, y cubre temas como IA, sostenibilidad, deep tech y mercados emergentes."
-    elif "websummit.com" in query:
-        return "El sitio web WebSummit.com describe el Web Summit como 'la conferencia de tecnología más grande del mundo', que reúne a CEOs de Fortune 500, startups, inversores y periodistas. Cubre una amplia gama de temas tecnológicos, desde IA y software empresarial hasta impacto social y cultura tecnológica. Es un evento masivo de networking."
-    elif "mwcbarcelona.com" in query:
-        return "El sitio web MWCBarcelona.com es la página oficial del Mobile World Congress, la mayor feria mundial de la industria móvil. Se centra en la conectividad, 5G, IoT, IA móvil, realidad virtual/aumentada y hardware. Es un evento clave para empresas de telecomunicaciones y fabricantes de dispositivos."
-    elif "techcrunch.com/events/disrupt" in query:
-        return "El sitio web de TechCrunch Disrupt describe el evento como una plataforma para startups emergentes. Incluye el famoso 'Startup Battlefield' donde las startups compiten por financiación, charlas de líderes de la industria, y oportunidades de networking. Se centra en la innovación disruptiva en diversos sectores tecnológicos."
-    elif "voicit.es" in query:
-        return "El sitio web Voicit.es describe a Voicit como una herramienta basada en IA para consultoras de RRHH, especializada en la optimización de procesos de selección y gestión de talento mediante inteligencia artificial. Ofrece soluciones SaaS para el sector de Recursos Humanos."
+    elif "voicit.es" in query or "kimeratechnologies.com" in query: # Añadido el sitio de Kimera
+        return "El sitio web de la startup se enfoca en soluciones de IA para el sector de eCommerce, específicamente en búsqueda y recomendación de productos mediante inteligencia artificial. Su tecnología SaaS ayuda a empresas B2B a mejorar la experiencia de compra online y la eficiencia operativa."
     elif "ia" in query.lower() or "inteligencia artificial" in query.lower():
         return "La Inteligencia Artificial (IA) es un campo de la informática que se enfoca en la creación de máquinas inteligentes que funcionan y reaccionan como humanos. Incluye aprendizaje automático (Machine Learning), procesamiento de lenguaje natural (NLP), visión por computadora y robótica. La IA está transformando industrias como RRHH y finanzas."
     elif "rrhh" in query.lower() or "recursos humanos" in query.lower():
@@ -264,7 +171,7 @@ def gemini_analysis():
     - startupSector (string): Sector de la startup del usuario.
     - startupWebsite (string): URL del sitio web de la startup del usuario.
     """
-    try: # Envuelve toda la función en un try-except para capturar cualquier error inesperado
+    try:
         data = request.json
         event_name = data.get('eventName')
         event_website = data.get('eventWebsite')
@@ -339,49 +246,63 @@ def gemini_analysis():
         response = chat.send_message(prompt)
         logging.info(f"Respuesta inicial de Gemini recibida: {response}")
 
+        # Lista para almacenar todas las partes de la respuesta de la herramienta
+        tool_responses_parts = []
+
+        # Bucle para procesar múltiples llamadas a herramientas si Gemini las hace
         while True:
+            # Comprobar si hay candidatos y si el primer candidato tiene contenido y partes
             if not (response.candidates and len(response.candidates) > 0 and \
                     response.candidates[0].content and len(response.candidates[0].content.parts) > 0):
-                logging.warning(f"Respuesta de Gemini no tiene la estructura esperada de candidatos/contenido/partes. Respuesta completa: {response}")
-                break # Salir si la estructura básica no está presente
+                logging.warning(f"Respuesta de Gemini no tiene la estructura esperada de candidatos/contenido/partes. Saliendo del bucle de herramienta. Respuesta completa: {response}")
+                break # Salir si la estructura básica no está presente o no hay más llamadas a herramientas
 
-            function_call_found = False
+            function_call_found_in_this_turn = False
+            current_turn_function_calls = []
+
+            # Recopilar todas las llamadas a funciones en el turno actual
             for part in response.candidates[0].content.parts:
                 if part.function_call:
-                    call = part.function_call
-                    function_call_found = True
-                    logging.info(f"Gemini solicitó llamada a herramienta: {call.name} con args: {call.args}")
-                    if call.name == 'search_internet':
-                        tool_response_content = search_internet(call.args['query'])
-                        logging.info(f"Respuesta de la herramienta search_internet: {tool_response_content}")
-                        response = chat.send_message(
-                            genai.protos.Part(
-                                function_response=genai.protos.FunctionResponse(
-                                    name='search_internet',
-                                    response={
-                                        'result': tool_response_content
-                                    }
-                                )
-                            )
-                        )
-                    else:
-                        logging.warning(f"Llamada a herramienta no reconocida: {call.name}")
-                        response = chat.send_message(
-                            genai.protos.Part(
-                                function_response=genai.protos.FunctionResponse(
-                                    name=call.name,
-                                    response={
-                                        'error': 'Herramienta no reconocida o no implementada.'
-                                    }
-                                )
-                            )
-                        )
-                    break # Procesar solo la primera llamada a función y luego reevaluar la respuesta de Gemini
+                    current_turn_function_calls.append(part.function_call)
+                    function_call_found_in_this_turn = True
             
-            if not function_call_found:
+            if not function_call_found_in_this_turn:
                 break # Si no se encontró ninguna llamada a función en las partes, salir del bucle
 
-            logging.info(f"Respuesta de Gemini después de la herramienta: {response}")
+            # Ejecutar cada llamada a función y recopilar sus respuestas
+            for call in current_turn_function_calls:
+                logging.info(f"Gemini solicitó llamada a herramienta: {call.name} con args: {call.args}")
+                if call.name == 'search_internet':
+                    tool_response_content = search_internet(call.args['query'])
+                    logging.info(f"Respuesta de la herramienta search_internet: {tool_response_content}")
+                    tool_responses_parts.append(
+                        genai.protos.Part(
+                            function_response=genai.protos.FunctionResponse(
+                                name='search_internet',
+                                response={
+                                    'result': tool_response_content
+                                }
+                            )
+                        )
+                    )
+                else:
+                    logging.warning(f"Llamada a herramienta no reconocida: {call.name}")
+                    tool_responses_parts.append(
+                        genai.protos.Part(
+                            function_response=genai.protos.FunctionResponse(
+                                name=call.name,
+                                response={
+                                    'error': 'Herramienta no reconocida o no implementada.'
+                                }
+                            )
+                        )
+                    )
+            
+            # Enviar TODAS las respuestas de las herramientas de vuelta a Gemini en un solo mensaje
+            logging.info(f"Enviando {len(tool_responses_parts)} respuestas de herramientas de vuelta a Gemini.")
+            response = chat.send_message(tool_responses_parts)
+            tool_responses_parts = [] # Limpiar para el siguiente turno si hubiera
+            logging.info(f"Respuesta de Gemini después de enviar respuestas de herramientas: {response}")
 
         # Después de que todas las llamadas a herramientas hayan sido procesadas o si no hubo ninguna
         if response.candidates and len(response.candidates) > 0 and \
@@ -492,6 +413,12 @@ if __name__ == '__main__':
                     "description": "Aplicación de finanzas personales que utiliza blockchain para transacciones seguras y transparentes.",
                     "sector": "Fintech, Blockchain, Finanzas",
                     "website": "https://fintechflow.com/"
+                },
+                {
+                    "company": "Kimera",
+                    "description": "Kimera es un SaaS B2B para la búsqueda y recomendación de productos eCommerce mediante tecnologías de IA.",
+                    "sector": "Software, IA, eCommerce",
+                    "website": "https://kimeratechnologies.com/"
                 }
             ]
             try:
@@ -506,6 +433,8 @@ if __name__ == '__main__':
 
 
     app.run(debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+
+
 
 
 
