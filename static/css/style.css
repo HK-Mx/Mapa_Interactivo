@@ -2,19 +2,25 @@
 
 /* Variables CSS para la paleta de colores y gradientes */
 :root {
-    --main-gradient: linear-gradient(90deg, #1f0d1e, #070d34); /* Morado oscuro a azul muy oscuro */
+    /* Gradientes originales (se usarán solo si se aplican explícitamente a un elemento) */
+    --main-gradient: linear-gradient(90deg, #1f0d1e, #070d34);
     --vertical-gradient: linear-gradient(180deg, #1f0d1e, #070d34);
-    --text-content: #070d34; /* Azul muy oscuro/morado oscuro (para elementos de texto principales sobre fondos claros) */
+
+    /* Colores base de tu paleta */
+    --text-content: #070d34; /* Azul muy oscuro/morado oscuro (para texto principal sobre fondos claros) */
     --title-content: #1f0d1e; /* Morado/negro muy oscuro (para títulos principales sobre fondos claros) */
     --azul: #1677ff; /* Azul vibrante para acentos */
 
-    /* Colores para el tema oscuro */
-    --dark-background-primary: #120811; /* Un tono base muy oscuro, casi negro */
-    --dark-background-secondary: #070d34; /* Azul muy oscuro del gradiente para fondos de paneles */
-    --light-text: #e0e0e0; /* Texto claro general */
-    --accent-text: #80F0FF; /* Azul neón claro para texto secundario/detalles */
-    --border-accent: #1677ff; /* Borde de acento (azul) */
-    --shadow-accent: rgba(22, 119, 255, 0.4); /* Sombra de acento (azul) */
+    /* Nuevas variables para el tema blanco */
+    --main-background: #FFFFFF; /* Fondo principal blanco */
+    --card-background: #FFFFFF; /* Fondo de tarjetas/paneles blanco */
+    --text-dark-general: #334155; /* Texto oscuro general */
+    --text-medium: #64748b; /* Texto gris medio para detalles */
+    --border-light: #cbd5e1; /* Borde claro */
+    --shadow-light: rgba(0, 0, 0, 0.1); /* Sombra ligera */
+    --shadow-accent-light: rgba(22, 119, 255, 0.2); /* Sombra de acento más suave para fondo claro */
+    --button-secondary-bg: #6b7280; /* Gris para botón secundario */
+    --button-secondary-hover-bg: #4b5563; /* Gris oscuro para hover */
 }
 
 /* Estilos generales del cuerpo de la página */
@@ -27,8 +33,8 @@ html, body {
 
 body {
     font-family: 'Helvetica', sans-serif; /* Fuente Helvetica */
-    background: var(--main-gradient); /* Fondo con gradiente principal */
-    color: var(--light-text); /* Texto claro general */
+    background-color: var(--main-background); /* Fondo blanco */
+    color: var(--text-dark-general); /* Texto oscuro general */
     display: flex; /* Para el layout flexbox */
     flex-direction: column; /* Para el layout flexbox */
 }
@@ -42,10 +48,10 @@ body {
 
 /* Estilos para "tarjetas" o paneles (filtros, análisis) */
 .card {
-    background-color: var(--dark-background-secondary); /* Fondo azul muy oscuro para las tarjetas */
+    background-color: var(--card-background); /* Fondo blanco para las tarjetas */
     border-radius: 0.75rem;
-    box-shadow: 0 0 15px var(--shadow-accent); /* Sombra de acento */
-    border: 1px solid var(--border-accent); /* Borde de acento */
+    box-shadow: 0 4px 6px var(--shadow-light); /* Sombra ligera */
+    border: 1px solid var(--border-light); /* Borde claro */
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -53,7 +59,7 @@ body {
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0 25px var(--shadow-accent);
+    box-shadow: 0 10px 15px var(--shadow-light);
 }
 
 /* Estilos para el contenedor del mapa */
@@ -61,9 +67,9 @@ body {
     height: 100%; /* El mapa ocupará el 100% de la altura de su contenedor flex */
     width: 100%;
     border-radius: 0.75rem;
-    box-shadow: 0 0 15px var(--shadow-accent); /* Sombra de acento */
-    border: 1px solid var(--border-accent); /* Borde de acento */
-    background-color: var(--dark-background-primary); /* Fondo aún más oscuro para el mapa */
+    box-shadow: 0 4px 6px var(--shadow-light); /* Sombra ligera */
+    border: 1px solid var(--border-light); /* Borde claro */
+    background-color: var(--card-background); /* Fondo blanco para el mapa */
 }
 
 /* Ajustes para el diseño flex del main */
@@ -89,26 +95,26 @@ main {
 
 /* Estilo para el header */
 header {
-    background: var(--main-gradient); /* Gradiente principal para el header */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra estándar */
+    background-color: var(--main-background); /* Fondo blanco para el header */
+    box-shadow: 0 2px 4px var(--shadow-light); /* Sombra ligera */
     padding: 1rem;
 }
 
 header h1 {
-    color: var(--azul); /* Azul vibrante para el título principal */
+    color: var(--text-content); /* Color de texto principal para el título */
     font-weight: 700;
     text-align: center;
     font-size: 2.25rem; /* text-3xl */
-    text-shadow: 0 0 10px rgba(22, 119, 255, 0.7); /* Brillo azul */
+    text-shadow: none; /* Eliminar brillo neón */
 }
 
 /* Estilo para los títulos de sección en el panel */
 h2 {
-    color: var(--azul); /* Azul vibrante para los subtítulos */
+    color: var(--text-content); /* Color de texto principal para los subtítulos */
     font-size: 1.5rem; /* text-2xl */
     font-weight: 600;
     margin-bottom: 1rem;
-    text-shadow: 0 0 5px rgba(22, 119, 255, 0.5);
+    text-shadow: none; /* Eliminar brillo neón */
 }
 
 /* Estilo para las etiquetas de los formularios */
@@ -116,29 +122,29 @@ label {
     display: block;
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--accent-text); /* Azul neón claro para las etiquetas */
+    color: var(--text-dark-general); /* Texto oscuro general para las etiquetas */
     margin-bottom: 0.25rem;
 }
 
 /* Estilo para los inputs y selects */
 .input-field,
 .select-field {
-    border: 1px solid var(--border-accent); /* Borde de acento */
+    border: 1px solid var(--border-light); /* Borde claro */
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     width: 100%;
     margin-top: 0.25rem;
     box-sizing: border-box;
-    background-color: #1a1a2e; /* Fondo oscuro para los campos de entrada */
-    color: var(--light-text); /* Texto claro */
+    background-color: var(--card-background); /* Fondo blanco */
+    color: var(--text-dark-general); /* Texto oscuro */
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .input-field:focus,
 .select-field:focus {
     outline: none;
-    border-color: var(--azul);
-    box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.4); /* Sombra de enfoque con color azul */
+    border-color: var(--azul); /* Azul vibrante al enfocar */
+    box-shadow: 0 0 0 3px var(--shadow-accent-light); /* Sombra de enfoque con color azul más suave */
 }
 
 /* Estilo para los botones */
@@ -149,7 +155,7 @@ label {
     border-radius: 0.5rem;
     font-weight: 600;
     transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px var(--shadow-light);
     width: 100%;
     margin-top: 1rem;
     border: none;
@@ -159,63 +165,63 @@ label {
 .btn-primary:hover {
     background-color: #1261cc; /* Un tono más oscuro del azul */
     transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 8px var(--shadow-light);
 }
 
 .btn-primary:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow-light);
 }
 
 .btn-secondary {
-    background-color: #3B4A60; /* Un tono de marino mate para el botón de reset */
-    color: var(--light-text); /* Texto claro */
+    background-color: var(--button-secondary-bg); /* Gris para el botón de reset */
+    color: white;
     padding: 0.75rem 1.5rem;
     border-radius: 0.5rem;
     font-weight: 600;
     transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px var(--shadow-light);
     width: 100%;
     margin-top: 1rem;
-    border: 1px solid var(--border-accent); /* Borde de acento */
+    border: none; /* Eliminar borde de acento si no se desea */
     cursor: pointer;
 }
 
 .btn-secondary:hover {
-    background-color: #4A5B75; /* Ligeramente más claro al pasar el ratón */
-    box-shadow: 0 0 8px var(--shadow-accent);
+    background-color: var(--button-secondary-hover-bg); /* Gris oscuro al pasar el ratón */
     transform: translateY(-2px);
+    box-shadow: 0 6px 8px var(--shadow-light);
 }
 
 .btn-secondary:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow-light);
 }
 
 /* Estilo para el área de análisis de Gemini */
 #geminiAnalysis {
-    background-color: #1a1a2e; /* Fondo oscuro */
+    background-color: var(--card-background); /* Fondo blanco */
     border-radius: 0.5rem;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 2px var(--shadow-light);
     padding: 1rem;
-    color: var(--accent-text); /* Texto azul neón claro */
+    color: var(--text-dark-general); /* Texto oscuro */
     overflow-y: auto;
     flex-grow: 1;
     max-height: 300px; /* Altura máxima en móvil */
-    border: 1px solid var(--border-accent); /* Borde de acento */
+    border: 1px solid var(--border-light); /* Borde claro */
 }
 
 #geminiAnalysis p {
-    color: var(--accent-text); /* Asegura que el texto dentro del análisis sea azul neón claro */
+    color: var(--text-dark-general); /* Asegura que el texto dentro del análisis sea oscuro */
 }
 
 /* Estilos para el popup de Leaflet */
 .leaflet-popup-content-wrapper {
-    background-color: var(--dark-background-secondary); /* Fondo oscuro para el popup */
+    background-color: var(--card-background); /* Fondo blanco para el popup */
     border-radius: 0.5rem;
-    box-shadow: 0 0 15px var(--shadow-accent); /* Sombra de acento */
-    border: 1px solid var(--border-accent); /* Borde de acento */
-    color: var(--light-text); /* Texto claro */
+    box-shadow: 0 4px 6px var(--shadow-light); /* Sombra ligera */
+    border: 1px solid var(--border-light); /* Borde claro */
+    color: var(--text-dark-general); /* Texto oscuro */
 }
 
 .leaflet-popup-content {
@@ -224,15 +230,15 @@ label {
 }
 
 .leaflet-popup-content h3 {
-    color: var(--azul); /* Azul vibrante para el título del evento */
+    color: var(--text-content); /* Color de texto principal para el título del evento */
     font-size: 1.125rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
-    text-shadow: 0 0 5px rgba(22, 119, 255, 0.6);
+    text-shadow: none; /* Eliminar brillo neón */
 }
 
 .leaflet-popup-content p {
-    color: var(--light-text); /* Texto claro para detalles */
+    color: var(--text-dark-general); /* Texto oscuro para detalles */
     font-size: 0.875rem;
     margin-bottom: 0.5rem;
 }
@@ -240,7 +246,7 @@ label {
 .leaflet-popup-content a {
     color: var(--azul); /* Azul vibrante para los enlaces */
     text-decoration: none;
-    text-shadow: 0 0 3px rgba(22, 119, 255, 0.5);
+    text-shadow: none; /* Eliminar brillo neón */
 }
 
 .leaflet-popup-content a:hover {
@@ -258,9 +264,9 @@ label {
 
 /* Estilo para el footer */
 footer {
-    background: var(--main-gradient); /* Gradiente principal para el footer */
-    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
-    color: white; /* Texto blanco en el footer */
+    background-color: var(--main-background); /* Fondo blanco para el footer */
+    box-shadow: 0 -2px 4px var(--shadow-light); /* Sombra ligera */
+    color: var(--text-dark-general); /* Texto oscuro en el footer */
     text-align: center;
     font-size: 0.875rem;
     padding: 1rem;
@@ -301,6 +307,7 @@ footer {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
 
 
 
