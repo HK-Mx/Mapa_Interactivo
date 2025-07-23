@@ -6,10 +6,8 @@
     <title>Mapa Interactivo de Eventos</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-            integrity="sha256-p4NxAoJBhIIN+hmNHrzxH1PfMhwNKSFVgGNhFxjL/AU="
-            crossorigin=""/>
+    <!-- Leaflet CSS (SRI y crossorigin eliminados para depuración) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
@@ -22,7 +20,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <header class="bg-white shadow-md p-4">
-        <h1 class="text-3xl font-bold text-center text-gray-800">Mapa Interactivo de Eventos de Tecnología y Startups</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800">Mapa de Eventos</h1>
     </header>
 
     <main class="flex-grow container mx-auto p-6 flex flex-col lg:flex-row gap-6">
@@ -32,28 +30,23 @@
 
             <div class="space-y-4 mb-6">
                 <div>
-                    <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Inicio:</label>
-                    <input type="date" id="startDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                </div>
-                <div>
-                    <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Fin:</label>
-                    <input type="date" id="endDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                </div>
-                <div>
-                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Ubicación:</label>
-                    <input type="text" id="location" placeholder="Ej: Barcelona, Helsinki" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                    <label for="eventDateFilter" class="block text-sm font-medium text-gray-700 mb-1">Seleccionar Fecha:</label>
+                    <select id="eventDateFilter" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                        <option value="">Todos los eventos</option>
+                        <!-- Las opciones se cargarán dinámicamente con JavaScript -->
+                    </select>
                 </div>
                 <button id="filterBtn" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out shadow-md">
-                    Aplicar Filtros
+                    Aplicar Filtro
                 </button>
                 <button id="resetBtn" class="w-full bg-gray-400 text-white py-2 px-4 rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition duration-150 ease-in-out shadow-md">
-                    Restablecer Filtros
+                    Restablecer Filtro
                 </button>
             </div>
 
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4 mt-auto">Análisis de Evento (Gemini)</h2>
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4 mt-auto">Análisis de Evento</h2>
             <div id="geminiAnalysis" class="bg-indigo-50 p-4 rounded-md border border-indigo-200 text-gray-700 text-sm overflow-y-auto flex-grow max-h-[300px] lg:max-h-full">
-                <p>Haz clic en un marcador de evento en el mapa para obtener un análisis de Gemini sobre su relevancia para tus intereses en startups y tecnología.</p>
+                <p>Haz clic en un marcador de evento en el mapa para obtener un análisis sobre su relevancia para tus intereses en startups y tecnología.</p>
                 <div id="loadingIndicator" class="hidden text-center text-indigo-600 mt-4">
                     <svg class="animate-spin h-5 w-5 text-indigo-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -69,14 +62,14 @@
     </main>
 
     <footer class="bg-white shadow-md p-4 text-center text-gray-600 text-sm mt-auto">
-        &copy; 2025 Mapa de Eventos. Desarrollado con Flask, MongoDB, Leaflet y Gemini API.
+        &copy; 2025 Mapa de Eventos.
     </footer>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/4K9+sGFu/w+6F9uK0sQ="
-            crossorigin=""></script>
+    <!-- Leaflet JS (SRI y crossorigin eliminados para depuración) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
+
+

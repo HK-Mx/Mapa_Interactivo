@@ -5,104 +5,226 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Evita el scroll global si los elementos internos manejan su propio scroll */
+    overflow: hidden;
+    /* Fondo principal: marino mate oscuro */
+    background-color: #0D1117;
+    color: #80F0FF; /* Azul neón más claro para el texto general */
+    font-family: 'Inter', sans-serif; /* Asegura la fuente Inter */
 }
 
 /* Estilo para el contenedor del mapa */
 #map {
-    height: 100%; /* El mapa ocupará el 100% de la altura de su contenedor flex */
+    height: 100%;
     width: 100%;
-    border-radius: 0.5rem; /* rounded-lg de Tailwind */
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg de Tailwind */
+    border-radius: 0.75rem; /* Más redondeado */
+    /* Sombra y borde en azul neón */
+    box-shadow: 0 0 20px rgba(0, 224, 255, 0.5), 0 0 30px rgba(0, 224, 255, 0.3);
+    border: 1px solid #00E0FF; /* Azul neón para el borde */
+    background-color: #0D1117; /* Fondo del mapa igual al body */
 }
 
 /* Ajustes para el diseño flex del main */
 main {
     display: flex;
-    flex-direction: column; /* Por defecto en móvil, los elementos se apilan */
-    gap: 1.5rem; /* gap-6 de Tailwind */
-    padding: 1.5rem; /* p-6 de Tailwind */
-    flex-grow: 1; /* Permite que el main ocupe el espacio restante */
-    overflow-y: auto; /* Permite el scroll si el contenido es demasiado largo */
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 /* Ajustes para pantallas grandes (lg:flex-row) */
 @media (min-width: 1024px) {
     main {
-        flex-direction: row; /* En pantallas grandes, los elementos se colocan en fila */
+        flex-direction: row;
     }
 }
 
+/* Estilo para el header */
+header {
+    background-color: #16213E; /* Marino mate medio para el header */
+    box-shadow: 0 4px 15px rgba(0, 224, 255, 0.2); /* Sombra neón para el header */
+    padding: 1rem;
+}
+
+header h1 {
+    color: #00E0FF; /* Azul neón primario para el título principal */
+    text-shadow: 0 0 8px rgba(0, 224, 255, 0.7); /* Efecto de brillo neón */
+    font-weight: 700;
+}
+
 /* Estilo para el panel de filtros y análisis */
+.bg-white { /* Sobrescribe el fondo blanco de Tailwind */
+    background-color: #16213E; /* Marino mate medio para el panel */
+    border-radius: 0.75rem; /* Más redondeado */
+    box-shadow: 0 0 15px rgba(0, 224, 255, 0.4); /* Sombra neón para el panel */
+    border: 1px solid #00E0FF; /* Borde neón */
+    color: #80F0FF; /* Texto azul neón más claro */
+}
+
 .lg\:h-\[calc\(100vh-160px\)\] {
-    height: calc(100vh - 160px); /* Altura dinámica para el panel lateral en desktop */
+    height: calc(100vh - 160px);
+}
+
+/* Estilo para los títulos de sección en el panel */
+h2 {
+    color: #00E0FF; /* Azul neón primario para los subtítulos */
+    text-shadow: 0 0 5px rgba(0, 224, 255, 0.6);
+}
+
+/* Estilo para las etiquetas de los formularios */
+label {
+    color: #80F0FF; /* Azul neón más claro para las etiquetas */
+}
+
+/* Estilo para los inputs y selects */
+input[type="date"],
+input[type="text"],
+select {
+    background-color: #23304A; /* Marino mate más claro para los campos de entrada */
+    border: 1px solid #00E0FF; /* Borde neón */
+    color: #E0E0E0; /* Gris claro para el texto del input */
+    border-radius: 0.5rem; /* Redondeado */
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+input[type="date"]:focus,
+input[type="text"]:focus,
+select:focus {
+    outline: none;
+    border-color: #00E0FF; /* Borde neón al enfocar */
+    box-shadow: 0 0 10px rgba(0, 224, 255, 0.8); /* Brillo neón al enfocar */
+}
+
+/* Estilo para los botones */
+button {
+    border-radius: 0.5rem; /* Redondeado */
+    transition: all 0.3s ease;
+    font-weight: 600;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+#filterBtn {
+    background-color: #00E0FF; /* Azul neón primario para el botón principal */
+    color: #0D1117; /* Texto oscuro para contraste */
+    box-shadow: 0 0 10px rgba(0, 224, 255, 0.7);
+    border: none;
+}
+
+#filterBtn:hover {
+    background-color: #00BFFF; /* Un azul neón ligeramente más oscuro al pasar el ratón */
+    box-shadow: 0 0 15px rgba(0, 224, 255, 1);
+    transform: translateY(-2px);
+}
+
+#resetBtn {
+    background-color: #3B4A60; /* Un tono de marino mate para el botón de reset */
+    color: #E0E0E0; /* Texto claro */
+    border: 1px solid #00E0FF; /* Borde neón */
+}
+
+#resetBtn:hover {
+    background-color: #4A5B75; /* Ligeramente más claro al pasar el ratón */
+    border-color: #00E0FF; /* Borde neón */
+    box-shadow: 0 0 8px rgba(0, 224, 255, 0.5);
+    transform: translateY(-2px);
 }
 
 /* Estilo para el área de análisis de Gemini */
 #geminiAnalysis {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* Permite que el contenido del análisis crezca */
-    max-height: 300px; /* Altura máxima en móvil */
+    background-color: #16213E; /* Marino mate medio para el fondo */
+    border: 1px solid #00E0FF; /* Borde neón */
+    color: #80F0FF; /* Texto azul neón más claro */
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: 300px;
+}
+
+#geminiAnalysis p {
+    color: #80F0FF; /* Asegura que el texto dentro del análisis sea azul neón más claro */
 }
 
 /* Sobrescribir max-height para pantallas grandes */
 @media (min-width: 1024px) {
     #geminiAnalysis {
-        max-height: none; /* Elimina la altura máxima en desktop */
+        max-height: none;
     }
 }
 
 /* Estilos para el popup de Leaflet */
 .leaflet-popup-content-wrapper {
-    border-radius: 0.5rem; /* rounded-md */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+    background-color: #16213E; /* Marino mate medio para el popup */
+    border-radius: 0.5rem;
+    box-shadow: 0 0 15px rgba(0, 224, 255, 0.4); /* Sombra neón */
+    border: 1px solid #00E0FF; /* Borde neón */
+    color: #80F0FF; /* Texto azul neón más claro */
 }
 
 .leaflet-popup-content {
-    padding: 1rem; /* p-4 */
+    padding: 1rem;
     font-family: 'Inter', sans-serif;
 }
 
 .leaflet-popup-content h3 {
-    font-size: 1.125rem; /* text-lg */
-    font-weight: 700; /* font-bold */
-    color: #4338ca; /* text-indigo-700 */
-    margin-bottom: 0.25rem; /* mb-1 */
+    color: #00E0FF; /* Azul neón primario para el título del evento */
+    text-shadow: 0 0 5px rgba(0, 224, 255, 0.6);
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
 }
 
 .leaflet-popup-content p {
-    font-size: 0.875rem; /* text-sm */
-    color: #4b5563; /* text-gray-700 */
-    margin-bottom: 0.5rem; /* mb-2 */
+    color: #80F0FF; /* Azul neón más claro para detalles */
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
 }
 
 .leaflet-popup-content a {
-    color: #4f46e5; /* text-indigo-600 */
+    color: #00E0FF; /* Azul neón primario para los enlaces */
     text-decoration: none;
+    text-shadow: 0 0 3px rgba(0, 224, 255, 0.5);
 }
 
 .leaflet-popup-content a:hover {
     text-decoration: underline;
 }
 
+/* Este estilo ya no se usa directamente, pero se mantiene para evitar errores */
 .analyze-btn {
-    background-color: #6366f1; /* bg-indigo-500 */
-    color: white;
-    font-size: 0.75rem; /* text-xs */
-    padding: 0.25rem 0.75rem; /* py-1 px-3 */
-    border-radius: 0.375rem; /* rounded-md */
-    transition: background-color 0.15s ease-in-out;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    background-color: #00E0FF;
+    color: #0D1117;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    transition: all 0.15s ease-in-out;
+    box-shadow: 0 0 8px rgba(0, 224, 255, 0.7);
     border: none;
     cursor: pointer;
 }
 
 .analyze-btn:hover {
-    background-color: #4f46e5; /* hover:bg-indigo-600 */
+    background-color: #00BFFF;
+    box-shadow: 0 0 12px rgba(0, 224, 255, 1);
+    transform: translateY(-1px);
 }
 
 /* Estilos para el indicador de carga */
 #loadingIndicator svg {
-    display: block; /* Centrar el SVG */
+    display: block;
+    color: #00E0FF; /* Azul neón primario para el spinner */
 }
+#loadingIndicator p {
+    color: #00E0FF; /* Azul neón primario para el texto de carga */
+}
+
+/* Estilo para el footer */
+footer {
+    background-color: #16213E; /* Marino mate medio para el footer */
+    box-shadow: 0 -4px 15px rgba(0, 224, 255, 0.2); /* Sombra neón para el footer */
+    color: #80F0FF; /* Texto azul neón más claro */
+    padding: 1rem;
+}
+

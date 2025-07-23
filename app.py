@@ -19,15 +19,12 @@ app = Flask(__name__)
 MONGO_URI = os.getenv("DATABASE_URL")
 if not MONGO_URI:
     logging.error("DATABASE_URL environment variable not set.")
-    # En un entorno de producción, esto debería ser un error fatal o una configuración predeterminada segura.
-    # Para desarrollo local, puedes establecer una URL de fallback o salir.
     raise ValueError("DATABASE_URL environment variable not set. Please set it in your .env file or environment.")
 
 try:
     client = MongoClient(MONGO_URI)
-    # Asume que el nombre de la base de datos es 'Cluster0' de la URL proporcionada
-    db = client.Cluster0
-    events_collection = db.event # Asume que la colección se llama 'events'
+    db = client.Cluster0 # Asume que el nombre de la base de datos es 'Cluster0' de la URL proporcionada
+    events_collection = db.events # Asume que la colección se llama 'events'
     logging.info("Conexión a MongoDB establecida con éxito.")
 except Exception as e:
     logging.error(f"Error al conectar con MongoDB: {e}")
@@ -42,34 +39,38 @@ if not GEMINI_API_KEY:
 genai.configure(api_key=GEMINI_API_KEY)
 
 # --- Herramienta de Búsqueda para Gemini (Simulada) ---
-# Esta función simula una búsqueda en internet.
-# En una aplicación real, esto se integraría con una API de búsqueda real
-# (ej., Google Custom Search, SerpAPI, etc.).
 def search_internet(query: str) -> str:
     """
     Realiza una búsqueda simulada en internet para la consulta dada.
+    Simula el contenido de una página web o información relevante.
     """
     logging.info(f"Simulando búsqueda en internet para: {query}")
-    # Resultados de búsqueda simulados para demostración
-    if "tech event" in query.lower() or "startup event" in query.lower() or "evento de tecnología" in query.lower():
-        return f"Resultados de búsqueda para '{query}': Eventos de tecnología y startups suelen cubrir temas como IA, blockchain, SaaS, financiación de startups y networking. Muchos eventos presentan pitches de startups, sesiones de mentoría y oportunidades de inversión. La innovación es clave."
-    elif "blockchain" in query.lower():
-        return f"Resultados de búsqueda para '{query}': Blockchain es una tecnología de registro distribuido que sustenta criptomonedas como Bitcoin y Ethereum. Se utiliza para contratos inteligentes, NFTs, finanzas descentralizadas (DeFi) y trazabilidad en la cadena de suministro. Es una tecnología disruptiva."
+    # Simulación de contenido web basado en palabras clave en la query
+    if "latitude59.ee" in query:
+        return "El sitio web Latitude59.ee describe el evento Latitude 59 como la principal conferencia de startups y tecnología en los países bálticos. Se centra en la innovación, inversión, networking, y presenta pitches de startups de IA, SaaS, fintech y blockchain. Es un punto de encuentro para emprendedores, inversores y líderes tecnológicos."
+    elif "slush.org" in query:
+        return "El sitio web Slush.org presenta Slush como una de las conferencias de startups y tecnología más grandes del mundo, originaria de Helsinki. Se enfoca en la financiación de startups, el crecimiento empresarial, la conexión entre fundadores e inversores, y cubre temas como IA, sostenibilidad, deep tech y mercados emergentes."
+    elif "websummit.com" in query:
+        return "El sitio web WebSummit.com describe el Web Summit como 'la conferencia de tecnología más grande del mundo', que reúne a CEOs de Fortune 500, startups, inversores y periodistas. Cubre una amplia gama de temas tecnológicos, desde IA y software empresarial hasta impacto social y cultura tecnológica. Es un evento masivo de networking."
+    elif "mwcbarcelona.com" in query:
+        return "El sitio web MWCBarcelona.com es la página oficial del Mobile World Congress, la mayor feria mundial de la industria móvil. Se centra en la conectividad, 5G, IoT, IA móvil, realidad virtual/aumentada y hardware. Es un evento clave para empresas de telecomunicaciones y fabricantes de dispositivos."
+    elif "techcrunch.com/events/disrupt" in query:
+        return "El sitio web de TechCrunch Disrupt describe el evento como una plataforma para startups emergentes. Incluye el famoso 'Startup Battlefield' donde las startups compiten por financiación, charlas de líderes de la industria, y oportunidades de networking. Se centra en la innovación disruptiva en diversos sectores tecnológicos."
     elif "ia" in query.lower() or "inteligencia artificial" in query.lower():
-        return f"Resultados de búsqueda para '{query}': La Inteligencia Artificial (IA) es un campo de la informática que se enfoca en la creación de máquinas inteligentes que funcionan y reaccionan como humanos. Incluye aprendizaje automático (Machine Learning), procesamiento de lenguaje natural (NLP), visión por computadora y robótica. La IA está transformando industrias."
-    elif "fintech" in query.lower() or "finanzas" in query.lower():
-        return f"Resultados de búsqueda para '{query}': Fintech se refiere a la tecnología financiera que busca mejorar y automatizar la prestación y el uso de servicios financieros. Incluye pagos móviles, préstamos online, gestión de inversiones automatizada y criptomonedas. Es un sector de rápido crecimiento."
+        return "La Inteligencia Artificial (IA) es un campo de la informática que se enfoca en la creación de máquinas inteligentes que funcionan y reaccionan como humanos. Incluye aprendizaje automático (Machine Learning), procesamiento de lenguaje natural (NLP), visión por computadora y robótica. La IA está transformando industrias como RRHH y finanzas."
+    elif "rrhh" in query.lower() or "recursos humanos" in query.lower():
+        return "El sector de Recursos Humanos (RRHH) está experimentando una transformación digital. Las herramientas de IA en RRHH se utilizan para la automatización de procesos de contratación, análisis de talento, personalización de la experiencia del empleado y mejora de la eficiencia operativa. SaaS es un modelo común para estas soluciones."
     elif "saas" in query.lower() or "software como servicio" in query.lower():
-        return f"Resultados de búsqueda para '{query}': Software as a Service (SaaS) es un modelo de entrega de software donde el software es licenciado por suscripción y se aloja centralmente. Es una forma común de ofrecer aplicaciones empresariales y de consumo. Ofrece escalabilidad y accesibilidad."
+        return "Software as a Service (SaaS) es un modelo de entrega de software donde el software es licenciado por suscripción y se aloja centralmente. Es una forma común de ofrecer aplicaciones empresariales y de consumo, proporcionando escalabilidad y accesibilidad. Muchas startups de IA operan bajo este modelo."
     else:
-        return f"Resultados de búsqueda para '{query}': Información general sobre {query}. Podría incluir noticias, definiciones, tendencias recientes o aplicaciones."
+        return f"Resultados de búsqueda simulados para '{query}': Información general relevante para tecnología y startups."
 
 # Define la herramienta para el modelo Gemini
 search_tool = genai.protos.Tool(
     function_declarations=[
         genai.protos.FunctionDeclaration(
             name='search_internet',
-            description='Performs a simulated internet search for the given query related to tech, startups, or specific technologies.',
+            description='Performs a simulated internet search to get information about a website or a specific tech/startup topic.',
             parameters=genai.protos.Schema(
                 type=genai.protos.Type.OBJECT,
                 properties={
@@ -82,7 +83,6 @@ search_tool = genai.protos.Tool(
 )
 
 # Inicializa el modelo Gemini con la herramienta definida
-# Se recomienda usar un modelo como 'gemini-1.5-flash' o 'gemini-1.0-pro' para un buen rendimiento.
 model = genai.GenerativeModel(
     model_name='gemini-1.5-flash',
     tools=[search_tool]
@@ -95,46 +95,58 @@ def index():
     """Sirve la página principal de la aplicación."""
     return render_template('index.html')
 
+@app.route('/api/event_dates', methods=['GET'])
+def get_event_dates():
+    """
+    Obtiene todas las fechas únicas de inicio y fin de eventos de la base de datos.
+    """
+    try:
+        initial_dates = events_collection.distinct("initialDate")
+        final_dates = events_collection.distinct("finalDate")
+
+        all_dates = set()
+        for dt in initial_dates:
+            if isinstance(dt, datetime):
+                all_dates.add(dt.date())
+        for dt in final_dates:
+            if isinstance(dt, datetime):
+                all_dates.add(dt.date())
+
+        sorted_dates = sorted([d.isoformat() for d in list(all_dates)])
+        logging.info(f"Fechas de eventos únicas encontradas: {len(sorted_dates)}")
+        return jsonify(sorted_dates)
+    except Exception as e:
+        logging.error(f"Error al obtener fechas de eventos: {e}")
+        return jsonify({"error": "Fallo al obtener fechas de eventos", "details": str(e)}), 500
+
+
 @app.route('/api/events', methods=['GET'])
 def get_events():
     """
-    Obtiene eventos de la base de datos MongoDB, aplicando filtros de fecha y ubicación.
+    Obtiene eventos de la base de datos MongoDB, aplicando filtro por una fecha seleccionada.
     Los parámetros de la URL son:
-    - startDate (ISO format): Fecha de inicio mínima.
-    - endDate (ISO format): Fecha de fin máxima.
-    - location (string): Ubicación a buscar (búsqueda insensible a mayúsculas/minúsculas).
+    - selectedDate (ISO format, YYYY-MM-DD): Fecha para filtrar eventos que estén activos en ese día.
     """
-    start_date_str = request.args.get('startDate')
-    end_date_str = request.args.get('endDate')
-    location_filter = request.args.get('location')
+    selected_date_str = request.args.get('selectedDate')
 
     query = {}
-    if start_date_str:
+    if selected_date_str:
         try:
-            # Reemplazar 'Z' por '+00:00' para compatibilidad con fromisoformat
-            start_date = datetime.fromisoformat(start_date_str.replace('Z', '+00:00'))
-            query['initialDate'] = {'$gte': start_date}
+            selected_date_start = datetime.fromisoformat(selected_date_str)
+            selected_date_end = datetime.fromisoformat(selected_date_str).replace(hour=23, minute=59, second=59, microsecond=999999)
+
+            query['initialDate'] = {'$lte': selected_date_end}
+            query['finalDate'] = {'$gte': selected_date_start}
+
         except ValueError:
-            logging.warning(f"Formato de fecha de inicio inválido: {start_date_str}")
-            return jsonify({"error": "Formato de fecha de inicio inválido. Use ISO 8601 (ej. 2025-05-21T00:00:00Z)"}), 400
-    if end_date_str:
-        try:
-            end_date = datetime.fromisoformat(end_date_str.replace('Z', '+00:00'))
-            query['finalDate'] = {'$lte': end_date}
-        except ValueError:
-            logging.warning(f"Formato de fecha de fin inválido: {end_date_str}")
-            return jsonify({"error": "Formato de fecha de fin inválido. Use ISO 8601 (ej. 2025-05-23T00:00:00Z)"}), 400
-    if location_filter:
-        # Búsqueda de ubicación insensible a mayúsculas/minúsculas
-        query['location'] = {'$regex': location_filter, '$options': 'i'}
+            logging.warning(f"Formato de fecha seleccionada inválido: {selected_date_str}")
+            return jsonify({"error": "Formato de fecha seleccionada inválido. Use YYYY-MM-DD"}), 400
 
     try:
         events_cursor = events_collection.find(query)
         events_list = []
         for event in events_cursor:
-            # Convertir ObjectId a string para serialización JSON
             event['_id'] = str(event['_id'])
-            # Convertir objetos datetime a strings ISO para serialización JSON
             if 'initialDate' in event and isinstance(event['initialDate'], datetime):
                 event['initialDate'] = event['initialDate'].isoformat() + 'Z'
             if 'finalDate' in event and isinstance(event['finalDate'], datetime):
@@ -152,86 +164,143 @@ def gemini_analysis():
     Endpoint para obtener un análisis de Gemini sobre la relevancia de un evento.
     Recibe:
     - eventName (string): Nombre del evento.
-    - startupDescription (string): Descripción de la startup asociada al evento.
-    - eventTheme (string, opcional): Temática general del evento.
+    - eventWebsite (string): URL del sitio web del evento.
+    - startupDescription (string): Descripción de la startup del usuario.
     """
     data = request.json
     event_name = data.get('eventName')
+    event_website = data.get('eventWebsite')
     startup_description = data.get('startupDescription')
-    # Proporciona una temática por defecto si no se especifica
-    event_theme = data.get('eventTheme', 'tecnología, startups e innovación')
 
-    if not event_name or not startup_description:
-        logging.warning("Solicitud de análisis de Gemini incompleta: falta eventName o startupDescription.")
-        return jsonify({"error": "Faltan 'eventName' o 'startupDescription' en la solicitud."}), 400
+    logging.info(f"Recibida solicitud de análisis de Gemini para: {event_name}, URL: {event_website}, Startup: {startup_description}")
+
+    if not event_name or not event_website or not startup_description:
+        logging.warning("Solicitud de análisis de Gemini incompleta: faltan datos.")
+        return jsonify({"error": "Faltan 'eventName', 'eventWebsite' o 'startupDescription' en la solicitud."}), 400
+
+    # Obtener todos los eventos para que Gemini pueda recomendar
+    all_events_for_gemini = []
+    try:
+        events_cursor = events_collection.find({}) # Obtener todos los eventos
+        for event in events_cursor:
+            all_events_for_gemini.append({
+                "name": event.get("name"),
+                "description": event.get("description", "No hay descripción disponible."),
+                "location": event.get("location"),
+                "initialDate": event.get("initialDate").isoformat() if isinstance(event.get("initialDate"), datetime) else None,
+                "finalDate": event.get("finalDate").isoformat() if isinstance(event.get("finalDate"), datetime) else None,
+                "website": event.get("website")
+            })
+    except Exception as e:
+        logging.error(f"Error al obtener todos los eventos para Gemini (para recomendación): {e}")
+        # Continuar incluso si falla la obtención de todos los eventos, pero Gemini no podrá recomendar.
+
+    events_list_str = "\n".join([
+        f"- Nombre: {e['name']}, Descripción: {e['description']}, Ubicación: {e['location']}, Fechas: {e['initialDate']} a {e['finalDate']}"
+        for e in all_events_for_gemini if e['name'] != event_name # Excluir el evento actual
+    ])
 
     prompt = f"""
-    Eres un asistente experto en el ecosistema de eventos de tecnología, startups e innovación. Tu objetivo es proporcionar una evaluación concisa sobre si un evento específico, en relación con una startup, sería de interés para un usuario que busca oportunidades en el ámbito tecnológico, de inversión, o de desarrollo de nuevas empresas.
+    Eres un asistente experto en el ecosistema de eventos de tecnología y startups. Tu tarea es analizar un evento específico y la descripción de una startup, y determinar si el evento es de interés para esa startup. Si no lo es, debes recomendar otro evento de una lista proporcionada.
 
     Aquí tienes la información clave:
-    - Nombre del Evento: "{event_name}"
-    - Temática General del Evento (si aplica): "{event_theme}"
-    - Descripción de la Startup asociada: "{startup_description}"
+    - Nombre del Evento Actual: "{event_name}"
+    - URL del Sitio Web del Evento Actual: "{event_website}"
+    - Descripción de la Startup del Usuario: "{startup_description}"
 
-    Tu proceso de análisis debe ser el siguiente:
-    1.  **Investigación Contextual**: Utiliza la herramienta `search_internet` para buscar información relevante sobre la temática del evento y los conceptos clave presentes en la descripción de la startup. Esto te ayudará a entender el dominio y la relevancia.
-    2.  **Evaluación de Interés**: Basado en la información recopilada y la descripción de la startup, determina si el evento y la participación de esta startup se alinean con los intereses típicos de un entusiasta de startups, un inversor potencial, o alguien que busca innovación en tecnología. Considera si el evento ofrece networking, conocimiento de tendencias, oportunidades de financiación o visibilidad para nuevas empresas.
-    3.  **Generación de Respuesta**: Crea una respuesta clara y concisa de aproximadamente 500 caracteres.
+    **Paso 1: Investigación del Evento Actual.**
+    Usa la herramienta `search_internet` con la URL del sitio web del evento actual ("{event_website}") para obtener una comprensión de su temática, enfoque y audiencia.
 
-    **Si el evento es de interés**:
-    Explica brevemente por qué es relevante, destacando qué oportunidades o beneficios podría ofrecer para alguien interesado en startups y tecnología. Menciona cómo la startup se relaciona con la temática del evento y por qué esto es valioso.
+    **Paso 2: Evaluación de Interés.**
+    Basado en la información recopilada del sitio web del evento y la descripción de la startup (Voicit es una herramienta de IA para consultoras de RRHH), determina si el evento actual es de interés para la startup. Considera si el evento ofrece oportunidades de networking, visibilidad para soluciones de IA/RRHH/SaaS, posibles clientes, inversores, o conocimiento relevante para su sector.
 
-    **Si el evento NO es de interés (o es menos relevante)**:
-    Explica concisamente por qué no se alinea bien con los intereses de startups/tecnología, y sugiere qué tipo de eventos o temáticas alternativas (con ejemplos) podrían ser más adecuadas para ese perfil de usuario.
+    **Paso 3: Generación de Respuesta.**
+    Crea una respuesta concisa de aproximadamente 300 palabras (unos 1500-2000 caracteres).
 
-    **Formato de la Respuesta**:
-    - Si es de interés: "¡Este evento es muy prometedor para tus intereses! [Explicación concisa de por qué, mencionando la startup y la temática. Máx. ~500 caracteres]"
-    - Si NO es de interés: "Este evento parece menos alineado con tus objetivos en startups. [Explicación concisa y sugerencias de temáticas alternativas. Máx. ~500 caracteres]"
+    **Si el evento es de interés para la startup:**
+    Explica claramente por qué es relevante, destacando los beneficios específicos que Voicit podría obtener al asistir o participar.
+
+    **Si el evento NO es de interés (o es menos relevante) para la startup:**
+    Explica por qué no se alinea bien con los objetivos de Voicit. Luego, **recomienda un evento alternativo** de la siguiente lista de eventos disponibles que crees que sería más adecuado para Voicit, y justifica tu recomendación. Si no hay otros eventos adecuados, indícalo.
+
+    **Lista de Otros Eventos Disponibles para Recomendación (si aplica):**
+    {events_list_str if events_list_str else "No hay otros eventos disponibles para recomendar."}
+
+    **Formato de la Respuesta:**
+    - Si es de interés: "¡Este evento es muy prometedor para Voicit! [Explicación detallada de por qué, mencionando la relación con IA, RRHH, SaaS, networking, etc. Máx. ~300 palabras]"
+    - Si NO es de interés: "Este evento parece menos alineado con los objetivos de Voicit. [Explicación concisa y recomendación de un evento alternativo de la lista, justificando por qué es mejor. Máx. ~300 palabras]"
     """
 
     try:
-        # Iniciar un chat con el modelo
+        logging.info("Enviando prompt a Gemini...")
         chat = model.start_chat(history=[])
         response = chat.send_message(prompt)
+        logging.info(f"Respuesta inicial de Gemini recibida: {response}")
 
         # Manejar llamadas a herramientas (si el modelo decide usar search_internet)
-        if response.candidates and response.candidates[0].function_calls:
-            for call in response.candidates[0].function_calls:
-                if call.name == 'search_internet':
-                    # Ejecutar la función simulada de búsqueda
-                    tool_response_content = search_internet(call.args['query'])
-                    # Enviar la respuesta de la herramienta de vuelta al modelo
-                    response = chat.send_message(
-                        genai.protos.Part(
-                            function_response=genai.protos.FunctionResponse(
-                                name='search_internet',
-                                response={
-                                    'result': tool_response_content
-                                }
+        # Bucle para procesar múltiples llamadas a herramientas si Gemini las hace
+        while True:
+            # Comprobar si hay candidatos y si el primer candidato tiene contenido y partes
+            if not (response.candidates and response.candidates[0].content and response.candidates[0].content.parts):
+                break # Salir si no hay más contenido o partes
+
+            # Buscar una función de llamada en las partes del contenido
+            function_call_found = False
+            for part in response.candidates[0].content.parts:
+                if part.function_call:
+                    call = part.function_call
+                    function_call_found = True
+                    logging.info(f"Gemini solicitó llamada a herramienta: {call.name} con args: {call.args}")
+                    if call.name == 'search_internet':
+                        tool_response_content = search_internet(call.args['query'])
+                        logging.info(f"Respuesta de la herramienta search_internet: {tool_response_content}")
+                        response = chat.send_message(
+                            genai.protos.Part(
+                                function_response=genai.protos.FunctionResponse(
+                                    name='search_internet',
+                                    response={
+                                        'result': tool_response_content
+                                    }
+                                )
                             )
                         )
-                    )
-        # Asegurarse de que hay una respuesta de texto después de posibles llamadas a herramientas
+                    else:
+                        logging.warning(f"Llamada a herramienta no reconocida: {call.name}")
+                        response = chat.send_message(
+                            genai.protos.Part(
+                                function_response=genai.protos.FunctionResponse(
+                                    name=call.name,
+                                    response={
+                                        'error': 'Herramienta no reconocida o no implementada.'
+                                    }
+                                )
+                            )
+                        )
+                    break # Procesar solo la primera llamada a función y luego reevaluar la respuesta de Gemini
+            
+            if not function_call_found:
+                break # Si no se encontró ninguna llamada a función en las partes, salir del bucle
+
+            logging.info(f"Respuesta de Gemini después de la herramienta: {response}")
+
+
+        # Una vez que no hay más llamadas a herramientas, obtener la respuesta de texto final
         if response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
             gemini_output = response.candidates[0].content.parts[0].text
-            # Truncar la salida a aproximadamente 500 caracteres
-            if len(gemini_output) > 500:
-                gemini_output = gemini_output[:497] + "..." # Añade puntos suspensivos si se trunca
-            logging.info(f"Análisis de Gemini generado para '{event_name}': {gemini_output}")
+            if len(gemini_output) > 2000:
+                gemini_output = gemini_output[:1997] + "..."
+            logging.info(f"Análisis final de Gemini generado para '{event_name}': {gemini_output}")
             return jsonify({"analysis": gemini_output})
         else:
-            logging.warning(f"Gemini no devolvió una respuesta de texto válida para '{event_name}'.")
-            return jsonify({"error": "Gemini no pudo generar un análisis válido."}), 500
+            logging.warning(f"Gemini no devolvió una respuesta de texto válida para '{event_name}'. Respuesta completa: {response}")
+            return jsonify({"error": "Gemini no pudo generar un análisis válido. Inténtalo de nuevo. Revisa los logs del servidor para más detalles."}), 500
 
     except Exception as e:
-        logging.error(f"Error al llamar a la API de Gemini para '{event_name}': {e}")
+        logging.error(f"Error inesperado al llamar a la API de Gemini para '{event_name}': {e}", exc_info=True)
         return jsonify({"error": "Fallo al obtener el análisis de Gemini", "details": str(e)}), 500
 
 # --- Lógica de Inserción de Datos de Prueba (Solo para desarrollo/primera ejecución) ---
 if __name__ == '__main__':
-    # Esta sección inserta datos de prueba si la colección 'events' está vacía.
-    # Es útil para probar la aplicación sin tener que añadir datos manualmente.
-    # En un entorno de producción, los datos se gestionarían de otra manera.
     try:
         if events_collection.count_documents({}) == 0:
             logging.info("No se encontraron eventos en la base de datos. Insertando datos de prueba...")
@@ -243,10 +312,6 @@ if __name__ == '__main__':
                     "finalDate": datetime(2025, 5, 23, 0, 0, 0),
                     "location": "Tallinn",
                     "website": "https://latitude59.ee/",
-                    "location_point": {
-                        "type": "Point",
-                        "coordinates": [24.7453688, 59.4372155] # [longitude, latitude]
-                    },
                     "description": "Startup InnovaTech es una empresa de IA que desarrolla soluciones de procesamiento de lenguaje natural para el sector financiero, enfocándose en la automatización de análisis de mercado y detección de fraudes."
                 },
                 {
@@ -256,10 +321,6 @@ if __name__ == '__main__':
                     "finalDate": datetime(2025, 12, 1, 0, 0, 0),
                     "location": "Helsinki",
                     "website": "https://www.slush.org/",
-                    "location_point": {
-                        "type": "Point",
-                        "coordinates": [24.9384, 60.1699]
-                    },
                     "description": "CryptoLedger Solutions crea soluciones de blockchain para la gestión de la cadena de suministro, enfocándose en la trazabilidad y la transparencia de productos agrícolas desde la granja hasta el consumidor."
                 },
                 {
@@ -269,10 +330,6 @@ if __name__ == '__main__':
                     "finalDate": datetime(2025, 11, 14, 0, 0, 0),
                     "location": "Lisbon",
                     "website": "https://websummit.com/",
-                    "location_point": {
-                        "type": "Point",
-                        "coordinates": [-9.1393, 38.7223]
-                    },
                     "description": "CloudConnect Global es una plataforma SaaS que optimiza la colaboración remota para equipos distribuidos, integrando herramientas de comunicación, gestión de proyectos y compartición de documentos para mejorar la productividad empresarial."
                 },
                 {
@@ -282,10 +339,6 @@ if __name__ == '__main__':
                     "finalDate": datetime(2026, 2, 27, 0, 0, 0),
                     "location": "Barcelona",
                     "website": "https://www.mwcbarcelona.com/",
-                    "location_point": {
-                        "type": "Point",
-                        "coordinates": [2.154007, 41.390205]
-                    },
                     "description": "NextGen IoT desarrolla hardware y software para la próxima generación de redes 5G y soluciones IoT, con un enfoque en ciudades inteligentes y optimización del consumo energético en entornos urbanos."
                 },
                 {
@@ -295,10 +348,6 @@ if __name__ == '__main__':
                     "finalDate": datetime(2025, 9, 17, 0, 0, 0),
                     "location": "San Francisco",
                     "website": "https://techcrunch.com/events/disrupt/",
-                    "location_point": {
-                        "type": "Point",
-                        "coordinates": [-122.4194, 37.7749]
-                    },
                     "description": "BioMed Innovations es una startup de biotecnología que utiliza IA para acelerar el descubrimiento de fármacos y personalizar tratamientos médicos, con un enfoque en enfermedades raras."
                 }
             ]
@@ -312,9 +361,9 @@ if __name__ == '__main__':
     except Exception as e:
         logging.error(f"Error al verificar la colección de eventos: {e}")
 
-
-    # Iniciar la aplicación Flask
-    # host='0.0.0.0' permite que la aplicación sea accesible desde cualquier IP (necesario en entornos de contenedor como Render)
-    # port se obtiene de la variable de entorno PORT (Render la establece) o por defecto a 5000
     app.run(debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+
+
+
+
 
