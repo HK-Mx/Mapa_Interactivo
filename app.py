@@ -25,6 +25,7 @@ try:
     client = MongoClient(MONGO_URI)
     db = client.Cluster0 # Asume que el nombre de la base de datos es 'Cluster0' de la URL proporcionada
     events_collection = db.events # Asume que la colección se llama 'events'
+    startups_collection = db.startup # Asume que la colección de startups se llama 'startup'
     logging.info("Conexión a MongoDB establecida con éxito.")
 except Exception as e:
     logging.error(f"Error al conectar con MongoDB: {e}")
@@ -56,6 +57,8 @@ def search_internet(query: str) -> str:
         return "El sitio web MWCBarcelona.com es la página oficial del Mobile World Congress, la mayor feria mundial de la industria móvil. Se centra en la conectividad, 5G, IoT, IA móvil, realidad virtual/aumentada y hardware. Es un evento clave para empresas de telecomunicaciones y fabricantes de dispositivos."
     elif "techcrunch.com/events/disrupt" in query:
         return "El sitio web de TechCrunch Disrupt describe el evento como una plataforma para startups emergentes. Incluye el famoso 'Startup Battlefield' donde las startups compiten por financiación, charlas de líderes de la industria, y oportunidades de networking. Se centra en la innovación disruptiva en diversos sectores tecnológicos."
+    elif "voicit.es" in query:
+        return "El sitio web Voicit.es describe a Voicit como una herramienta basada en IA para consultoras de RRHH, especializada en la optimización de procesos de selección y gestión de talento mediante inteligencia artificial. Ofrece soluciones SaaS para el sector de Recursos Humanos."
     elif "ia" in query.lower() or "inteligencia artificial" in query.lower():
         return "La Inteligencia Artificial (IA) es un campo de la informática que se enfoca en la creación de máquinas inteligentes que funcionan y reaccionan como humanos. Incluye aprendizaje automático (Machine Learning), procesamiento de lenguaje natural (NLP), visión por computadora y robótica. La IA está transformando industrias como RRHH y finanzas."
     elif "rrhh" in query.lower() or "recursos humanos" in query.lower():
@@ -95,6 +98,23 @@ def index():
     """Sirve la página principal de la aplicación."""
     return render_template('index.html')
 
+@app.route('/api/startups', methods=['GET'])
+def get_startups():
+    """
+    Obtiene todos los nombres, descripciones, sectores y websites de startups de la base de datos.
+    """
+    try:
+        startups_cursor = startups_collection.find({}, {'company': 1, 'description': 1, 'sector': 1, 'website': 1, '_id': 0})
+        startups_list = []
+        for startup in startups_cursor:
+            startups_list.append(startup)
+        logging.info(f"Startups encontradas: {len(startups_list)}")
+        return jsonify(startups_list)
+    except Exception as e:
+        logging.error(f"Error al obtener startups: {e}")
+        return jsonify({"error": "Fallo al obtener startups", "details": str(e)}), 500
+
+
 @app.route('/api/event_names', methods=['GET'])
 def get_event_names():
     """
@@ -121,7 +141,6 @@ def get_events():
 
     query = {}
     if selected_event_name:
-        # Búsqueda exacta por nombre
         query['name'] = selected_event_name
 
     try:
@@ -147,23 +166,29 @@ def gemini_analysis():
     Recibe:
     - eventName (string): Nombre del evento.
     - eventWebsite (string): URL del sitio web del evento.
+    - startupName (string): Nombre de la startup del usuario.
     - startupDescription (string): Descripción de la startup del usuario.
+    - startupSector (string): Sector de la startup del usuario.
+    - startupWebsite (string): URL del sitio web de la startup del usuario.
     """
     data = request.json
     event_name = data.get('eventName')
     event_website = data.get('eventWebsite')
+    startup_name = data.get('startupName')
     startup_description = data.get('startupDescription')
+    startup_sector = data.get('startupSector')
+    startup_website = data.get('startupWebsite')
 
-    logging.info(f"Recibida solicitud de análisis de Gemini para: {event_name}, URL: {event_website}, Startup: {startup_description}")
+    logging.info(f"Recibida solicitud de análisis de Gemini para: Evento={event_name}, URL Evento={event_website}, Startup={startup_name}, Desc={startup_description}, Sector={startup_sector}, URL Startup={startup_website}")
 
-    if not event_name or not event_website or not startup_description:
+    if not all([event_name, event_website, startup_name, startup_description, startup_sector, startup_website]):
         logging.warning("Solicitud de análisis de Gemini incompleta: faltan datos.")
-        return jsonify({"error": "Faltan 'eventName', 'eventWebsite' o 'startupDescription' en la solicitud."}), 400
+        return jsonify({"error": "Faltan datos en la solicitud para el análisis de Gemini."}), 400
 
     # Obtener todos los eventos para que Gemini pueda recomendar
     all_events_for_gemini = []
     try:
-        events_cursor = events_collection.find({}) # Obtener todos los eventos
+        events_cursor = events_collection.find({})
         for event in events_cursor:
             all_events_for_gemini.append({
                 "name": event.get("name"),
@@ -175,42 +200,44 @@ def gemini_analysis():
             })
     except Exception as e:
         logging.error(f"Error al obtener todos los eventos para Gemini (para recomendación): {e}")
-        # Continuar incluso si falla la obtención de todos los eventos, pero Gemini no podrá recomendar.
 
     events_list_str = "\n".join([
         f"- Nombre: {e['name']}, Descripción: {e['description']}, Ubicación: {e['location']}, Fechas: {e['initialDate']} a {e['finalDate']}"
-        for e in all_events_for_gemini if e['name'] != event_name # Excluir el evento actual
+        for e in all_events_for_gemini if e['name'] != event_name
     ])
 
     prompt = f"""
-    Eres un asistente experto en el ecosistema de eventos de tecnología y startups. Tu tarea es analizar un evento específico y la descripción de una startup, y determinar si el evento es de interés para esa startup. Si no lo es, debes recomendar otro evento de una lista proporcionada.
+    Eres un asistente experto en el ecosistema de eventos de tecnología y startups. Tu tarea es analizar un evento específico y la información detallada de una startup, y determinar si el evento es de interés para esa startup. Si no lo es, debes recomendar otro evento de una lista proporcionada.
 
     Aquí tienes la información clave:
+    - Nombre de la startup actual: "{startup_name}"
+    - Descripción de la Startup del Usuario: "{startup_description}"
+    - Sector de la Startup del Usuario: "{startup_sector}"
+    - URL del Sitio Web de la Startup: "{startup_website}"
     - Nombre del Evento Actual: "{event_name}"
     - URL del Sitio Web del Evento Actual: "{event_website}"
-    - Descripción de la Startup del Usuario: "{startup_description}"
 
-    **Paso 1: Investigación del Evento Actual.**
-    Usa la herramienta `search_internet` con la URL del sitio web del evento actual ("{event_website}") para obtener una comprensión de su temática, enfoque y audiencia.
+    **Paso 1: Investigación Contextual.**
+    Usa la herramienta `search_internet` con la URL del sitio web del evento actual ("{event_website}") para obtener una comprensión de su temática, enfoque y audiencia. Haz lo mismo con la URL del sitio web de la startup seleccionada ("{startup_website}") para entender mejor sus productos, servicios y propuesta de valor.
 
     **Paso 2: Evaluación de Interés.**
-    Basado en la información recopilada del sitio web del evento y la descripción de la startup (Voicit es una herramienta de IA para consultoras de RRHH), determina si el evento actual es de interés para la startup. Considera si el evento ofrece oportunidades de networking, visibilidad para soluciones de IA/RRHH/SaaS, posibles clientes, inversores, o conocimiento relevante para su sector.
+    Basado en la información recopilada de ambos sitios web (evento y startup), la descripción de la startup y su sector, determina si el evento actual es de interés para la startup "{startup_name}". Considera si el evento ofrece oportunidades de networking, visibilidad para soluciones en su sector (IA, RRHH, SaaS), posibles clientes, inversores, o conocimiento relevante para su crecimiento.
 
     **Paso 3: Generación de Respuesta.**
-    Crea una respuesta concisa de aproximadamente 150 palabras (unos 750-1000 caracteres).
+    Crea una respuesta concisa de aproximadamente 100 palabras (unos 500-700 caracteres).
 
     **Si el evento es de interés para la startup:**
-    Explica claramente por qué es relevante, destacando los beneficios específicos que Voicit podría obtener al asistir o participar.
+    Explica claramente por qué ese evento es relevante para la startup "{startup_name}", destacando los beneficios específicos que podría obtener al asistir o participar.
 
     **Si el evento NO es de interés (o es menos relevante) para la startup:**
-    Explica por qué no se alinea bien con los objetivos de Voicit. Luego, **recomienda un evento alternativo** de la siguiente lista de eventos disponibles que crees que sería más adecuado para Voicit, y justifica tu recomendación. Si no hay otros eventos adecuados, indícalo.
+    Explica por qué no se alinea bien con los objetivos de "{startup_name}". Luego, **recomienda un evento alternativo** de la siguiente lista de eventos disponibles que crees que sería más adecuado para la startup, y justifica tu recomendación. Si no hay otros eventos adecuados, indícalo.
 
     **Lista de Otros Eventos Disponibles para Recomendación (si aplica):**
     {events_list_str if events_list_str else "No hay otros eventos disponibles para recomendar."}
 
     **Formato de la Respuesta:**
-    - Si es de interés: "¡Este evento es muy prometedor para Voicit! [Explicación detallada de por qué, mencionando la relación con IA, RRHH, SaaS, networking, etc. Máx. ~150 palabras]"
-    - Si NO es de interés: "Este evento parece menos alineado con los objetivos de Voicit. [Explicación concisa y recomendación de un evento alternativo de la lista, justificando por qué es mejor. Máx. ~150 palabras]"
+    - Si es de interés: "¡Este evento es muy prometedor para {startup_name}! [Explicación detallada de por qué, mencionando la relación con IA, RRHH, SaaS, networking, etc. Máx. ~100 palabras]"
+    - Si NO es de interés: "Este evento parece menos alineado con los objetivos de {startup_name}. [Explicación concisa y recomendación de un evento alternativo de la lista, justificando por qué es mejor. Máx. ~100 palabras]"
     """
 
     try:
@@ -219,7 +246,6 @@ def gemini_analysis():
         response = chat.send_message(prompt)
         logging.info(f"Respuesta inicial de Gemini recibida: {response}")
 
-        # Manejar llamadas a herramientas (si el modelo decide usar search_internet)
         while True:
             if not (response.candidates and response.candidates[0].content and response.candidates[0].content.parts):
                 break
@@ -264,9 +290,9 @@ def gemini_analysis():
 
         if response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
             gemini_output = response.candidates[0].content.parts[0].text
-            # Truncar la salida a aproximadamente 150 palabras (aproximadamente 750-1000 caracteres para español)
-            if len(gemini_output) > 1000: # Limite de caracteres para ~150 palabras
-                gemini_output = gemini_output[:997] + "..."
+            # Truncar la salida a aproximadamente 100 palabras (aprox. 500-700 caracteres para español)
+            if len(gemini_output) > 700: # Limite de caracteres para ~100 palabras
+                gemini_output = gemini_output[:697] + "..."
             logging.info(f"Análisis final de Gemini generado para '{event_name}': {gemini_output}")
             return jsonify({"analysis": gemini_output})
         else:
@@ -281,7 +307,7 @@ def gemini_analysis():
 if __name__ == '__main__':
     try:
         if events_collection.count_documents({}) == 0:
-            logging.info("No se encontraron eventos en la base de datos. Insertando datos de prueba...")
+            logging.info("No se encontraron eventos en la base de datos. Insertando datos de prueba de eventos...")
             dummy_events = [
                 {
                     "id": "687bbf5995aa2580f6dec88e",
@@ -331,15 +357,58 @@ if __name__ == '__main__':
             ]
             try:
                 events_collection.insert_many(dummy_events)
-                logging.info(f"Se insertaron {len(dummy_events)} datos de prueba con éxito.")
+                logging.info(f"Se insertaron {len(dummy_events)} datos de prueba de eventos con éxito.")
             except Exception as e:
-                logging.error(f"Error al insertar datos de prueba: {e}")
+                logging.error(f"Error al insertar datos de prueba de eventos: {e}")
         else:
-            logging.info("La base de datos ya contiene eventos. No se insertaron datos de prueba.")
+            logging.info("La base de datos ya contiene eventos. No se insertaron datos de prueba de eventos.")
     except Exception as e:
         logging.error(f"Error al verificar la colección de eventos: {e}")
 
+    # --- Lógica de Inserción de Datos de Prueba para Startups ---
+    try:
+        if startups_collection.count_documents({}) == 0:
+            logging.info("No se encontraron startups en la base de datos. Insertando datos de prueba de startups...")
+            dummy_startups = [
+                {
+                    "company": "Voicit",
+                    "description": "Voicit es la herramienta basada en IA para consultoras de RRHH",
+                    "sector": "RRHH, IA, SaaS",
+                    "website": "https://voicit.es/"
+                },
+                {
+                    "company": "InnovateX",
+                    "description": "Plataforma de gestión de proyectos con IA para equipos de desarrollo de software.",
+                    "sector": "Software, IA, Gestión de Proyectos",
+                    "website": "https://innovatex.com/"
+                },
+                {
+                    "company": "GreenEnergy Solutions",
+                    "description": "Desarrolla soluciones de energía renovable y optimización de consumo energético para ciudades inteligentes.",
+                    "sector": "Energía, Sostenibilidad, IoT",
+                    "website": "https://greenenergysolutions.com/"
+                },
+                {
+                    "company": "FinTech Flow",
+                    "description": "Aplicación de finanzas personales que utiliza blockchain para transacciones seguras y transparentes.",
+                    "sector": "Fintech, Blockchain, Finanzas",
+                    "website": "https://fintechflow.com/"
+                }
+            ]
+            try:
+                startups_collection.insert_many(dummy_startups)
+                logging.info(f"Se insertaron {len(dummy_startups)} datos de prueba de startups con éxito.")
+            except Exception as e:
+                logging.error(f"Error al insertar datos de prueba de startups: {e}")
+        else:
+            logging.info("La base de datos ya contiene startups. No se insertaron datos de prueba de startups.")
+    except Exception as e:
+        logging.error(f"Error al verificar la colección de startups: {e}")
+
+
     app.run(debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+
+
 
 
 

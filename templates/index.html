@@ -1,4 +1,5 @@
 
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -11,8 +12,6 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        /* Estilos para la fuente Helvetica (se define en style.css, pero se mantiene aquí por si acaso) */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'); /* Mantener Inter si es fallback, o eliminar */
         /* La fuente Helvetica se define en style.css */
     </style>
 </head>
@@ -27,6 +26,15 @@
             <h2>Filtrar Eventos</h2>
 
             <div class="space-y-4 mb-6">
+                <!-- Nuevo desplegable para seleccionar Startup -->
+                <div>
+                    <label for="startupNameFilter">Seleccionar Startup:</label>
+                    <select id="startupNameFilter" class="select-field">
+                        <option value="">Selecciona una Startup</option>
+                        <!-- Las opciones se cargarán dinámicamente con JavaScript -->
+                    </select>
+                </div>
+                <!-- Desplegable existente para seleccionar Evento -->
                 <div>
                     <label for="eventNameFilter">Seleccionar Evento:</label>
                     <select id="eventNameFilter" class="select-field">
@@ -44,7 +52,7 @@
 
             <h2 class="mt-auto">Análisis de Evento</h2>
             <div id="geminiAnalysis" class="card flex-grow max-h-[300px] lg:max-h-full">
-                <p>Haz clic en un marcador de evento en el mapa para obtener un análisis sobre su relevancia para tus intereses en startups y tecnología.</p>
+                <p>Selecciona una startup y haz clic en un marcador de evento en el mapa para obtener un análisis sobre su relevancia.</p>
                 <div id="loadingIndicator" class="hidden text-center mt-4">
                     <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -69,6 +77,7 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
+
 
 
 

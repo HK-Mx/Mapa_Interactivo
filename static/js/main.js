@@ -11,14 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let markers = []; // Array para almacenar los marcadores actuales en el mapa
 
-    const eventNameFilter = document.getElementById('eventNameFilter'); // Cambiado de eventDateFilter
+    const startupNameFilter = document.getElementById('startupNameFilter'); // Nuevo desplegable de startup
+    const eventNameFilter = document.getElementById('eventNameFilter');
     const filterBtn = document.getElementById('filterBtn');
     const resetBtn = document.getElementById('resetBtn');
     const geminiAnalysisDiv = document.getElementById('geminiAnalysis');
     const loadingIndicator = document.getElementById('loadingIndicator');
 
-    // Descripción de la startup del usuario (hardcodeada para este ejemplo)
-    const userStartupDescription = "Voicit es la herramienta basada en IA para consultoras de RRHH";
+    let allStartupsData = []; // Para almacenar los datos completos de las startups
 
     /**
      * Limpia todos los marcadores existentes del mapa.
@@ -65,23 +65,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Rellena el desplegable de nombres de startups con los nombres únicos desde el backend.
+     */
+    async function populateStartupFilterDropdown() {
+        try {
+            const response = await fetch('/api/startups');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Fallo al cargar las startups');
+            }
+            allStartupsData = await response.json(); // Almacenar todos los datos de la startup
+
+            startupNameFilter.innerHTML = '<option value="">Selecciona una Startup</option>';
+
+            allStartupsData.forEach(startup => {
+                const option = document.createElement('option');
+                option.value = startup.company; // Usar el nombre de la compañía como valor
+                option.textContent = startup.company; // Mostrar el nombre de la compañía
+                startupNameFilter.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error al cargar las startups para el desplegable:', error);
+            displayGeminiAnalysis(`Error al cargar las startups: ${error.message}.`);
+        }
+    }
+
+    /**
      * Rellena el desplegable de nombres de eventos con los nombres únicos desde el backend.
      */
-    async function populateEventNameFilterDropdown() { // Renombrado
+    async function populateEventNameFilterDropdown() {
         try {
-            const response = await fetch('/api/event_names'); // Nueva API
+            const response = await fetch('/api/event_names');
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Fallo al cargar los nombres de eventos');
             }
             const names = await response.json();
 
-            eventNameFilter.innerHTML = '<option value="">Todos los eventos</option>'; // Cambiado
+            eventNameFilter.innerHTML = '<option value="">Todos los eventos</option>';
 
             names.forEach(nameStr => {
                 const option = document.createElement('option');
                 option.value = nameStr;
-                option.textContent = nameStr; // Mostrar el nombre del evento
+                option.textContent = nameStr;
                 eventNameFilter.appendChild(option);
             });
         } catch (error) {
@@ -94,11 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
      * Obtiene y muestra los eventos en el mapa.
      * @param {string} selectedEventName Nombre del evento seleccionado del desplegable.
      */
-    async function fetchAndDisplayEvents(selectedEventName = '') { // Cambiado
+    async function fetchAndDisplayEvents(selectedEventName = '') {
         clearMarkers();
         const params = new URLSearchParams();
         if (selectedEventName) {
-            params.append('selectedEventName', selectedEventName); // Cambiado
+            params.append('selectedEventName', selectedEventName);
         }
 
         try {
@@ -134,6 +160,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Activar el análisis de Gemini al abrir el popup
                     marker.on('popupopen', async function() {
+                        const selectedStartupName = startupNameFilter.value;
+                        if (!selectedStartupName) {
+                            displayGeminiAnalysis("Por favor, selecciona una startup del desplegable para obtener un análisis.");
+                            return;
+                        }
+
+                        const selectedStartup = allStartupsData.find(s => s.company === selectedStartupName);
+
+                        if (!selectedStartup) {
+                            displayGeminiAnalysis("No se encontró información para la startup seleccionada.");
+                            return;
+                        }
+
                         displayGeminiAnalysis("Cargando análisis de Gemini...", true);
 
                         try {
@@ -145,7 +184,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                 body: JSON.stringify({
                                     eventName: event.name,
                                     eventWebsite: event.website,
-                                    startupDescription: userStartupDescription
+                                    startupName: selectedStartup.company,
+                                    startupDescription: selectedStartup.description,
+                                    startupSector: selectedStartup.sector,
+                                    startupWebsite: selectedStartup.website
                                 }),
                             });
 
@@ -181,20 +223,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
     filterBtn.addEventListener('click', () => {
-        const selectedEventName = eventNameFilter.value; // Cambiado
-        fetchAndDisplayEvents(selectedEventName); // Cambiado
+        const selectedEventName = eventNameFilter.value;
+        fetchAndDisplayEvents(selectedEventName);
     });
 
     resetBtn.addEventListener('click', () => {
-        eventNameFilter.value = ''; // Cambiado
-        displayGeminiAnalysis("Haz clic en un marcador de evento en el mapa para obtener un análisis de Gemini sobre su relevancia para tus intereses en startups y tecnología.");
+        startupNameFilter.value = ''; // Resetear el desplegable de startup
+        eventNameFilter.value = ''; // Resetear el desplegable de evento
+        displayGeminiAnalysis("Selecciona una startup y haz clic en un marcador de evento en el mapa para obtener un análisis de Gemini sobre su relevancia.");
         fetchAndDisplayEvents(); // Carga todos los eventos sin filtros
     });
 
-    // Cargar los nombres de eventos en el desplegable y luego cargar todos los eventos al inicio
-    populateEventNameFilterDropdown().then(() => { // Renombrado
-        fetchAndDisplayEvents();
+    // Cargar los desplegables y luego cargar todos los eventos al inicio
+    populateStartupFilterDropdown().then(() => {
+        populateEventNameFilterDropdown().then(() => {
+            fetchAndDisplayEvents();
+        });
     });
 });
+
 
 
