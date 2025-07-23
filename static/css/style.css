@@ -1,0 +1,108 @@
+/* static/css/style.css */
+
+/* Asegura que el cuerpo de la página ocupe al menos la altura de la ventana */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Evita el scroll global si los elementos internos manejan su propio scroll */
+}
+
+/* Estilo para el contenedor del mapa */
+#map {
+    height: 100%; /* El mapa ocupará el 100% de la altura de su contenedor flex */
+    width: 100%;
+    border-radius: 0.5rem; /* rounded-lg de Tailwind */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg de Tailwind */
+}
+
+/* Ajustes para el diseño flex del main */
+main {
+    display: flex;
+    flex-direction: column; /* Por defecto en móvil, los elementos se apilan */
+    gap: 1.5rem; /* gap-6 de Tailwind */
+    padding: 1.5rem; /* p-6 de Tailwind */
+    flex-grow: 1; /* Permite que el main ocupe el espacio restante */
+    overflow-y: auto; /* Permite el scroll si el contenido es demasiado largo */
+}
+
+/* Ajustes para pantallas grandes (lg:flex-row) */
+@media (min-width: 1024px) {
+    main {
+        flex-direction: row; /* En pantallas grandes, los elementos se colocan en fila */
+    }
+}
+
+/* Estilo para el panel de filtros y análisis */
+.lg\:h-\[calc\(100vh-160px\)\] {
+    height: calc(100vh - 160px); /* Altura dinámica para el panel lateral en desktop */
+}
+
+/* Estilo para el área de análisis de Gemini */
+#geminiAnalysis {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Permite que el contenido del análisis crezca */
+    max-height: 300px; /* Altura máxima en móvil */
+}
+
+/* Sobrescribir max-height para pantallas grandes */
+@media (min-width: 1024px) {
+    #geminiAnalysis {
+        max-height: none; /* Elimina la altura máxima en desktop */
+    }
+}
+
+/* Estilos para el popup de Leaflet */
+.leaflet-popup-content-wrapper {
+    border-radius: 0.5rem; /* rounded-md */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+}
+
+.leaflet-popup-content {
+    padding: 1rem; /* p-4 */
+    font-family: 'Inter', sans-serif;
+}
+
+.leaflet-popup-content h3 {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 700; /* font-bold */
+    color: #4338ca; /* text-indigo-700 */
+    margin-bottom: 0.25rem; /* mb-1 */
+}
+
+.leaflet-popup-content p {
+    font-size: 0.875rem; /* text-sm */
+    color: #4b5563; /* text-gray-700 */
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.leaflet-popup-content a {
+    color: #4f46e5; /* text-indigo-600 */
+    text-decoration: none;
+}
+
+.leaflet-popup-content a:hover {
+    text-decoration: underline;
+}
+
+.analyze-btn {
+    background-color: #6366f1; /* bg-indigo-500 */
+    color: white;
+    font-size: 0.75rem; /* text-xs */
+    padding: 0.25rem 0.75rem; /* py-1 px-3 */
+    border-radius: 0.375rem; /* rounded-md */
+    transition: background-color 0.15s ease-in-out;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    border: none;
+    cursor: pointer;
+}
+
+.analyze-btn:hover {
+    background-color: #4f46e5; /* hover:bg-indigo-600 */
+}
+
+/* Estilos para el indicador de carga */
+#loadingIndicator svg {
+    display: block; /* Centrar el SVG */
+}
